@@ -107,6 +107,7 @@ namespace CompanyManagement.Controllers
             return View();
         }
 
+        //[HttpPost]
         //public Task<IActionResult> Update()
         //{
 

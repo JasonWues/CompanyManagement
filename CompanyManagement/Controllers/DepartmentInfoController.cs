@@ -34,7 +34,7 @@ namespace CompanyManagement.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(string departmentName, string leaderId, string parentId)
+        public async Task<IActionResult> Create(string departmentName, string leaderId, string parentId,string description)
         {
             if (string.IsNullOrEmpty(departmentName))
             {
@@ -54,6 +54,7 @@ namespace CompanyManagement.Controllers
             {
                 Id = Guid.NewGuid().ToString(),
                 DepartmentName = departmentName,
+                Description = description,
                 LeaderId = leaderId,
                 ParentId = parentId,
                 CreateTime = DateTime.Now,
@@ -87,11 +88,11 @@ namespace CompanyManagement.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Update(string Id,string departmentName, string leaderId, string parentId)
+        public async Task<IActionResult> Update(string Id,string departmentName, string leaderId, string parentId,string description)
         {
             if(Id != parentId)
             {
-                var b = await _iDepartmentInfoBll.Update(Id, departmentName, leaderId, parentId);
+                var b = await _iDepartmentInfoBll.Update(Id, departmentName, leaderId, parentId,description);
                 if (b) return Json(ApiResulthelp.Success("成功"));
                 return Json(ApiResulthelp.Error("修改失败"));
             }

@@ -18,7 +18,7 @@ public class ConsumableInfoController : Controller
     
     public async Task<IActionResult> Query(string name, int page, int limit)
     {
-         var(list,count) = await _iConsumableInfoBll.Query(name, page, limit);
+        var(list,count) = await _iConsumableInfoBll.Query(name, page, limit);
         return Json(ApiResulthelp.Success(list, count));
     }
 
@@ -30,4 +30,8 @@ public class ConsumableInfoController : Controller
     {
         return View();
     }
+    //public IActionResult Create()
+    //{
+
+    //}
 }

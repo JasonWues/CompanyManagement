@@ -59,12 +59,13 @@ namespace CompanyBll
             return (await query.ToListAsync(), count);
         }
 
-        public async Task<bool> Update(string Id, string departmentName, string leaderId, string parentId)
+        public async Task<bool> Update(string Id, string departmentName, string leaderId, string parentId,string description)
         {
             DepartmentInfo departmentInfo = await _iBaseDal.Find(Id);
             departmentInfo.DepartmentName = departmentName;
             departmentInfo.LeaderId = leaderId;
             departmentInfo.ParentId = parentId;
+            departmentInfo.Description = description;
             return await _iBaseDal.Update(departmentInfo);
         }
     }

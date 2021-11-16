@@ -2,12 +2,12 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>创建</title>
+    <title>CreateUserInfo</title>
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link rel="stylesheet" href="~/lib/layui/css/layui.css" media="all">
-    <link rel="stylesheet" href="~/layuimini/layuimini-2.0.6.1-iframe/css/public.css" media="all"/>
+    <link rel="stylesheet" href="~/layuimini/layuimini-2.0.6.1-iframe/css/public.css" media="all">
     <style>
         body {
             background-color: #ffffff;
@@ -16,36 +16,20 @@
 </head>
 <body>
 <div class="layui-form layuimini-form">
-    <div class="layui-form-item">
-        <label class="layui-form-label required">部门名称</label>
-        <div class="layui-input-block">
-            <input type="text" name="DepartmentName" lay-verify="required" lay-reqtext="部门名称不能为空" placeholder="请输入部门名称" value="" class="layui-input">
-        </div>
-    </div>
 
     <div class="layui-form-item">
-        <label class="layui-form-label required">描述</label>
+        <label class="layui-form-label">名称</label>
+        <div class="layui-input-block">
+            <input type="text" name="CategoryName" placeholder="请输入名称" value="" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">描述</label>
         <div class="layui-input-block">
             <input type="text" name="Description" placeholder="请输入描述" value="" class="layui-input">
         </div>
     </div>
 
-    <div class="layui-form-item">
-        <label class="layui-form-label required">主管</label>
-        <div class="layui-input-block">
-            <select id="LeaderSelect" name="LeaderId" lay-filter="leaderName">
-                <option></option>
-            </select>
-        </div>
-    </div>
-    <div class="layui-form-item">
-        <label class="layui-form-label required">上级部门</label>
-        <div class="layui-input-block">
-            <select id="ParentSelect" name="ParentId" lay-filter="parentName">
-                <option></option>
-            </select>
-       </div>
-    </div>
 
     <div class="layui-form-item">
         <div class="layui-input-block">
@@ -60,27 +44,8 @@
             layer = layui.layer,
             $ = layui.$;
 
-           $.ajax({
-                    url:'QueryDepartmentinfo',
-                    type:'get',
-                    success: function(res){
-                        if(res.enumerable.length > 0){
-                            for(var i = 0;i < res.enumerable.length;i++){
-                                $('#LeaderSelect').append('<option value="'+res.enumerable[i].id +'">' + res.enumerable[i].account + '</option>')
-                            }
-                            if(res.departmentinfo.length){
-                                for(var x = 0;x < res.departmentinfo.length;x++){
-                                    $('#ParentSelect').append('<option value="'+res.departmentinfo[x].id +'">' + res.departmentinfo[x].departmentName + '</option>')
-                                }
-                            }
-                            form.render('select');
-                        }
-                    }
-             })
-
-        //监听提交departmentinfo
+        //监听提交
         form.on('submit(saveBtn)', function (data) {
-           console.log(data);
 
            $.ajax({
                url: 'Create',
@@ -92,7 +57,7 @@
                        var index = layer.alert(res.msg, {
                            title: '提示'
                        }, function () {
-                           layer.msg(res.msg);
+
                            // 关闭弹出层
                            layer.close(index);
                            var iframeIndex = parent.layer.getFrameIndex(window.name);
