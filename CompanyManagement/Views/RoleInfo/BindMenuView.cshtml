@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Layui</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link rel="stylesheet" href="~/lib/layui/css/layui.css" media="all">
+
+</head>
+<body>
+
+<div id="Transfer" class="demo-transfer"></div>
+
+<script src="~/lib/layui/layui.js" charset="utf-8"></script>
+<script>
+layui.use(['transfer', 'layer', 'util'], function(){
+  var $ = layui.$
+  ,transfer = layui.transfer
+  ,layer = layui.layer
+  ,util = layui.util;
+  
+  
+  $.ajax({
+    url: 'QueryRoleInfo',
+    type: 'get',
+    data: {
+            roleInfoId: parent.Id
+    },
+    success: function(res){
+      let list = [];
+      for(let i = 0;i<res.menuInfo.length;i++){
+        list.push({"value":res.menuInfo[i].id,"title":res.menuInfo[i].title});
+      }
+          transfer.render({
+            elem: '#Transfer'
+            ,data: list
+            ,onchange: function(obj,index) {
+              let currentRoleInfoId = [];
+              for(var i = 0;i<obj.length;i++){
+                  currentRoleInfoId.push(obj[i].value)
+              }
+                $.ajax({
+                   url: 'BindRoleInfo',
+                        type: 'post',
+                        data: {
+                            roleId: parent.Id,
+                            menuInfoId: currentRoleInfoId
+                        },
+                        success: function (res) {
+                            layer.msg(res.msg);
+                        }
+                });
+            }
+            ,title: ['未绑定', '已绑定']
+            ,showSearch: true
+            , value: res.bindMenuInfo
+          })
+      }
+  });
+  
+})
+</script>
+
+</body>
+</html>

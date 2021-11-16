@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.0">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\CompanyBII\CompanyBll.csproj" />
+      <ProjectReference Include="..\CompanyDal\CompanyDal.csproj" />
+      <ProjectReference Include="..\Entity\Entity.csproj" />
+      <ProjectReference Include="..\ICompanyBII\ICompanyBll.csproj" />
+      <ProjectReference Include="..\Utility\Utility.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="wwwroot\css\" />
+      <Folder Include="wwwroot\js\" />
+    </ItemGroup>
+
+</Project>

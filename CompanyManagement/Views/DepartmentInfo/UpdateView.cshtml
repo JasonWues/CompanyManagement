@@ -1,0 +1,131 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>UpdateDepartmentInfo</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="~/lib/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="~/layuimini/layuimini-2.0.6.1-iframe/css/public.css" media="all">
+    <style>
+        body {
+            background-color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-form layuimini-form" lay-filter="Update">
+        <div class="layui-form-item" hidden>
+            <label class="layui-form-label required">ID</label>
+            <div class="layui-input-block">
+                <input type="text" name="ID" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label required">部门名称</label>
+            <div class="layui-input-block">
+                <input type="text" name="DepartmentName" lay-verify="required" lay-reqtext="部门名称不能为空" placeholder="请输入部门名称" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label required">主管</label>
+            <div class="layui-input-block">
+                <select id="LeaderSelect" name="LeaderId" lay-filter="leaderName">
+                 <option></option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label required">上级部门</label>
+            <div class="layui-input-block">
+                <select id="ParentSelect" name="ParentId" lay-filter="parentName">
+                    <option></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveBtn">确认保存</button>
+        </div>
+    </div>
+</div>
+<script src="~/lib/layui/layui.js"></script>
+<script>
+    layui.use(['form'], function () {
+        var form = layui.form,
+            layer = layui.layer,
+            $ = layui.$;
+
+            if(parent.Id){
+                $.ajax({
+                    url: 'QueryDepartmentName',
+                    type: 'get',
+                    data: {
+                        Id: parent.Id
+                    },
+                    success: function(res){
+                        form.val("Update",{
+                            "ID": res.data.id
+                            ,"DepartmentName": res.data.departmentName
+                        });
+                    }
+                })
+            }
+
+             $.ajax({
+                    url:'QueryDepartmentinfo',
+                    type:'get',
+                    data: {
+                        Id:parent.Id
+                    },
+                    success: function(res){
+                        if(res.enumerable.length > 0){
+                            for(var i = 0;i < res.enumerable.length;i++){
+                                $('#LeaderSelect').append('<option value="'+res.enumerable[i].id +'">' + res.enumerable[i].account + '</option>')
+                            }
+                            if(res.departmentinfo.length){
+                                for(var x = 0;x < res.departmentinfo.length;x++){
+                                    $('#ParentSelect').append('<option value="'+res.departmentinfo[x].id +'">' + res.departmentinfo[x].departmentName + '</option>')
+                                }
+                            }else{
+                                $('#ParentSelect').append('<option value="'+res.departmentinfo.id +'">' + res.departmentinfo.departmentName + '</option>')
+                            }
+                            form.render('select');
+                        }
+                    }
+             })
+
+
+        //监听提交
+        form.on('submit(saveBtn)', function (data) {
+            var index = layer.alert('确定提交', {
+                title: '提示'
+            }, function () { 
+                //请求服务器更新用户
+                $.ajax({
+                    url: 'Update',
+                    data: data.field,
+                    type: 'post',
+                    success: function (res) {
+                        if (res.code === 200) {
+                            // 关闭弹出层
+                            layer.msg(res.msg);
+                            layer.close(index);
+                            var iframeIndex = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(iframeIndex);
+                            //调用父级页面的刷新方法
+                            parent.reLoadTable();
+                        } else {
+                            layer.msg(res.msg);
+                        }
+                    }
+                });
+            });
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

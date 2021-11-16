@@ -1,0 +1,145 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>UpdateDepartmentInfo</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="~/lib/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="~/layuimini/layuimini-2.0.6.1-iframe/css/public.css" media="all">
+    <style>
+        body {
+            background-color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-form layuimini-form" lay-filter="Update">
+        <div class="layui-form-item" hidden>
+            <label class="layui-form-label required">ID</label>
+            <div class="layui-input-block">
+                <input type="text" name="ID" class="layui-input">
+            </div>
+        </div>
+            <div class="layui-form-item">
+        <label class="layui-form-label required">菜单名称</label>
+        <div class="layui-input-block">
+            <input type="text" name="Title" lay-verify="required" lay-reqtext="菜单名称不能为空" placeholder="请输入菜单名称" value="" class="layui-input">
+        </div>
+    </div>
+     <div class="layui-form-item">
+        <label class="layui-form-label">描述</label>
+        <div class="layui-input-block">
+            <input type="text" name="Description" placeholder="请输入描述" value="" class="layui-input">
+        </div>
+    </div>
+            <div class="layui-form-item">
+        <label class="layui-form-label">等级</label>
+        <div class="layui-input-block">
+            <input type="text" name="Level" placeholder="请输入等级" value="" class="layui-input">
+        </div>
+    </div>
+      <div class="layui-form-item">
+        <label class="layui-form-label">排序</label>
+        <div class="layui-input-block">
+            <input type="text" name="Sort" placeholder="请输入排序" value="" class="layui-input">
+        </div>
+    </div>
+            <div class="layui-form-item">
+        <label class="layui-form-label">链接</label>
+        <div class="layui-input-block">
+            <input type="text" name="Href" placeholder="请输入链接" value="" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">父级部门</label>
+        <div class="layui-input-block">
+            <select id="ParentIdSelect" name="ParentId" lay-filter="leaderName">
+                <option></option>
+            </select>
+        </div>
+    </div>
+     <div class="layui-form-item">
+        <label class="layui-form-label">图标</label>
+        <div class="layui-input-block">
+            <input type="text" name="Icon" placeholder="请输入图标" value="" class="layui-input">
+        </div>
+    </div>
+         <div class="layui-form-item">
+        <label class="layui-form-label">目标</label>
+        <div class="layui-input-block">
+            <input type="text" name="Target" placeholder="请输入目标" value="" class="layui-input">
+        </div>
+    </div>
+
+        <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveBtn">确认保存</button>
+        </div>
+    </div>
+</div>
+<script src="~/lib/layui/layui.js"></script>
+<script>
+    layui.use(['form'], function () {
+        var form = layui.form,
+            layer = layui.layer,
+            $ = layui.$;
+
+                $.ajax({
+                    url:'QueryMenuInfoTitle',
+                    type:'get',
+                    data: {
+                        Id:parent.Id
+                    },
+                    success: function(res){
+                        form.val("Update",{
+                            "Title": res.currentMenuInfoTitle[0].title,
+                            "Description": res.currentMenuInfoTitle[0].description,
+                            "Level": res.currentMenuInfoTitle[0].level,
+                            "Sort": res.currentMenuInfoTitle[0].sort,
+                            "Href": res.currentMenuInfoTitle[0].href,
+                            "Icon": res.currentMenuInfoTitle[0].icon,
+                            "Target": res.currentMenuInfoTitle[0].target
+                        });
+                        if(res.menInfo.length > 0){
+                            for(var i = 0;i < res.menInfo.length;i++){
+                                $('#ParentIdSelect').append('<option value="'+res.menInfo[i].id +'">' + res.menInfo[i].title + '</option>')
+                            }
+                            form.render('select');
+                        }
+                    }
+             })
+
+
+        //监听提交
+        form.on('submit(saveBtn)', function (data) {
+            var index = layer.alert('确定提交', {
+                title: '提示'
+            }, function () { 
+                //请求服务器更新用户
+                $.ajax({
+                    url: 'Update',
+                    data: data.field,
+                    type: 'post',
+                    success: function (res) {
+                        if (res.code === 200) {
+                            // 关闭弹出层
+                            layer.msg(res.msg);
+                            layer.close(index);
+                            var iframeIndex = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(iframeIndex);
+                            //调用父级页面的刷新方法
+                            parent.reLoadTable();
+                        } else {
+                            layer.msg(res.msg);
+                        }
+                    }
+                });
+            });
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

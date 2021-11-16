@@ -1,0 +1,29 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "layui@2.6.8",
+      "destination": "wwwroot/lib/layui/",
+      "files": [
+        "layui.js",
+        "css/layui.css",
+        "css/modules/laydate/default/laydate.css",
+        "css/modules/laydate/default/laydate.min.css",
+        "css/modules/layer/default/icon-ext.png",
+        "css/modules/layer/default/icon.png",
+        "css/modules/layer/default/layer.css",
+        "css/modules/layer/default/layer.min.css",
+        "css/modules/layer/default/loading-0.gif",
+        "css/modules/layer/default/loading-1.gif",
+        "css/modules/layer/default/loading-2.gif",
+        "css/modules/code.css",
+        "css/modules/code.min.css",
+        "font/iconfont.eot",
+        "font/iconfont.svg",
+        "font/iconfont.ttf",
+        "font/iconfont.woff"
+      ]
+    }
+  ]
+}
