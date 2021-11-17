@@ -13,7 +13,7 @@ namespace CompanyManagement.Controllers
         readonly IR_UserInfo_RoleInfoBll _iR_userInfo_roleInfoBll;
         readonly IRRoleInfoMenuInfoBll _iRRoleInfoMenuInfoBll;
         readonly IMenuInfoBll _iMenuInfoBll;
-        public RoleInfoController(IRoleInfoBll iRoleInfoBll, IUserInfoBll iUserInfoBll, IR_UserInfo_RoleInfoBll iR_userInfo_roleInfoBll,IRRoleInfoMenuInfoBll iRRoleInfoMenuInfoBll,IMenuInfoBll iMenuInfoBll)
+        public RoleInfoController(IRoleInfoBll iRoleInfoBll, IUserInfoBll iUserInfoBll, IR_UserInfo_RoleInfoBll iR_userInfo_roleInfoBll, IRRoleInfoMenuInfoBll iRRoleInfoMenuInfoBll, IMenuInfoBll iMenuInfoBll)
         {
             _iRoleInfoBll = iRoleInfoBll;
             _iUserInfoBll = iUserInfoBll;
@@ -81,15 +81,12 @@ namespace CompanyManagement.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(List<string> Id)
         {
-            int b = 0;
-            foreach (string id in Id)
+            int b = await _iRoleInfoBll.FakeDelete(x => Id.Contains(x.Id) && x.IsDelete == false, x => new RoleInfo()
             {
-                b += await _iRoleInfoBll.FakeDelete(x => x.Id == id && x.IsDelete == false, x => new RoleInfo()
-                {
-                    IsDelete = true,
-                    DeleteTime = DateTime.Now
-                });
-            }
+                IsDelete = true,
+                DeleteTime = DateTime.Now
+            });
+
 
             if (b > 0) return Json(ApiResulthelp.Success("成功"));
             return Json(ApiResulthelp.Error("删除失败"));
@@ -155,7 +152,7 @@ namespace CompanyManagement.Controllers
 
         public async Task<IActionResult> QueryUserInfo(string roleInfoId)
         {
-            var userInfo = await _iUserInfoBll.QueryDb().Where(x=> x.IsDelete == false).Select(x => new
+            var userInfo = await _iUserInfoBll.QueryDb().Where(x => x.IsDelete == false).Select(x => new
             {
                 x.Id,
                 x.UserName
@@ -188,8 +185,8 @@ namespace CompanyManagement.Controllers
         public async Task<IActionResult> BindRoleInfo(string roleId, List<string> menuInfoId)
         {
             var allRoleInfoId = await _iRRoleInfoMenuInfoBll.Query(x => x.RoleId == roleId);
-            
-            
+
+
             foreach (var item in allRoleInfoId)
             {
                 if (!menuInfoId.Contains(item.RoleId))
@@ -209,10 +206,10 @@ namespace CompanyManagement.Controllers
                     rRoleInfoMenuInfo.RoleId = roleId;
                     rRoleInfoMenuInfo.MenuId = id;
                     rRoleInfoMenuInfo.CreateTime = DateTime.Now;
-                    
+
                     addEntityList.Add(rRoleInfoMenuInfo);
                 }
-                
+
             }
 
             await _iRRoleInfoMenuInfoBll.BatchInsert(addEntityList);

@@ -31,7 +31,7 @@
     <div class="layui-form-item">
     <label class="layui-form-label">耗材类型</label>
     <div class="layui-input-block">
-      <select id="categoryNameSelect" name="CategoryName" lay-filter="categoryname">
+      <select id="categoryNameSelect" name="CategoryId" lay-filter="categoryname">
           <option></option>
       </select>
     </div>
@@ -75,13 +75,13 @@
             $ = layui.$;
 
             $.ajax({
-                url: 'QueryDepartmenName',
+                url: 'QueryCategoryName',
                 type: 'Get',
                 success: function(res){
                     if(res.code === 200){
                         if(res.data.length > 0){
                             for(var i = 0;i < res.data.length;i++){
-                                $('#departmentSelect').append('<option value="'+res.data[i].id +'">' + res.data[i].departmentName + '</option>')
+                                $('#categoryNameSelect').append('<option value="'+res.data[i].id +'">' + res.data[i].categoryName + '</option>')
                             }
                             form.render('select');
                         }

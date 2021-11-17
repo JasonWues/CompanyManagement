@@ -34,7 +34,7 @@ namespace CompanyManagement.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(string departmentName, string leaderId, string parentId,string description)
+        public async Task<IActionResult> Create(string departmentName, string leaderId, string parentId, string description)
         {
             if (string.IsNullOrEmpty(departmentName))
             {
@@ -68,17 +68,14 @@ namespace CompanyManagement.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(List<string> Id)
         {
-            int b = 0;
-            foreach (var id in Id)
+            int b = await _iDepartmentInfoBll.FakeDelete(x => Id.Contains(x.Id) && x.IsDelete == false, x => new DepartmentInfo()
             {
-                b =+ await _iDepartmentInfoBll.FakeDelete(x => x.Id==id && x.IsDelete == false,x=> new DepartmentInfo()
-                {
-                    IsDelete = true,
-                    DeleteTime = DateTime.Now
-                });
-            }
-            
-            if (b>0) return Json(ApiResulthelp.Success("成功"));
+                IsDelete = true,
+                DeleteTime = DateTime.Now
+            });
+
+
+            if (b > 0) return Json(ApiResulthelp.Success("成功"));
             return Json(ApiResulthelp.Error("删除失败"));
         }
 
@@ -88,11 +85,11 @@ namespace CompanyManagement.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Update(string Id,string departmentName, string leaderId, string parentId,string description)
+        public async Task<IActionResult> Update(string Id, string departmentName, string leaderId, string parentId, string description)
         {
-            if(Id != parentId)
+            if (Id != parentId)
             {
-                var b = await _iDepartmentInfoBll.Update(Id, departmentName, leaderId, parentId,description);
+                var b = await _iDepartmentInfoBll.Update(Id, departmentName, leaderId, parentId, description);
                 if (b) return Json(ApiResulthelp.Success("成功"));
                 return Json(ApiResulthelp.Error("修改失败"));
             }

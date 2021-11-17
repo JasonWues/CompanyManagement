@@ -17,8 +17,8 @@ namespace Entity
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"server=DESKTOP-QOGKNNM\SQLEXPRESS;database=CompanySystem;uid=sa;pwd=123456;");
-            //optionsBuilder.UseSqlServer("server=.;database=CompanySystem;uid=sa;pwd=123456;");
+            //optionsBuilder.UseSqlServer(@"server=DESKTOP-QOGKNNM\SQLEXPRESS;database=CompanySystem;uid=sa;pwd=123456;");
+            optionsBuilder.UseSqlServer("server=.;database=CompanySystem;uid=sa;pwd=123456;");
         }
 
         public DbSet<UserInfo> UserInfo { get; set; }

@@ -1,4 +1,5 @@
-﻿using ICompanyBll;
+﻿using Entity;
+using ICompanyBll;
 using Microsoft.AspNetCore.Mvc;
 using Utility.ApiResult;
 
@@ -7,9 +8,11 @@ namespace CompanyManagement.Controllers;
 public class ConsumableInfoController : Controller
 {
     readonly IConsumableInfoBll _iConsumableInfoBll;
-    public ConsumableInfoController(IConsumableInfoBll iConsumableInfoBll)
+    readonly ICategoryBll _iCategoryBll;
+    public ConsumableInfoController(IConsumableInfoBll iConsumableInfoBll,ICategoryBll iCategoryBll)
     {
         _iConsumableInfoBll = iConsumableInfoBll;
+        _iCategoryBll = iCategoryBll;
     }
     public IActionResult Index()
     {
@@ -26,12 +29,40 @@ public class ConsumableInfoController : Controller
     {
         return View();
     }
+
     public IActionResult UpdateView()
     {
         return View();
     }
-    //public IActionResult Create()
-    //{
 
-    //}
+    public async Task<IActionResult> QueryCategoryName()
+    {
+        return Json(ApiResulthelp.Success(await _iCategoryBll.Query()));
+    }
+
+    public async Task<IActionResult> Create(string description,string name,string categoryId, string specification,int num,string unit,decimal money)
+    {
+        ConsumableInfo consumableInfo = new ConsumableInfo();
+        consumableInfo.Id = Guid.NewGuid().ToString();
+        consumableInfo.Description = description;
+        consumableInfo.Name = name;
+        consumableInfo.CategoryId = categoryId;
+        consumableInfo.Specification = specification;
+        consumableInfo.Num = num;
+        consumableInfo.Unit = unit;
+        consumableInfo.Money = money;
+        consumableInfo.CreateTime = DateTime.Now;
+        consumableInfo.IsDelete = false;
+        var b =  await _iConsumableInfoBll.Create(consumableInfo);
+        if (b) return Json(ApiResulthelp.Success("成功"));
+        return Json(ApiResulthelp.Error("添加失败"));
+
+    }
+
+    public async Task<IActionResult> Delete(List<string> Id)
+    {
+        var b = await _iConsumableInfoBll.FakeDelete(x => Id.Contains(x.Id),x => new ConsumableInfo() { IsDelete = true,DeleteTime = DateTime.Now});
+        if (b > 0) return Json(ApiResulthelp.Success("删除成功"));
+        return Json(ApiResulthelp.Error("失败"));
+    }
 }

@@ -18,7 +18,7 @@ namespace CompanyManagement.Controllers
         }
         public async Task<IActionResult> Query(string categoryName, int page, int limit)
         {
-            (var list,var count) = await _iCategoryBll.Query(categoryName, page, limit);
+            (var list, var count) = await _iCategoryBll.Query(categoryName, page, limit);
             return Json(ApiResulthelp.Success(list, count));
         }
 
@@ -29,6 +29,19 @@ namespace CompanyManagement.Controllers
         public IActionResult UpdateView()
         {
             return View();
+        }
+
+        public async Task<IActionResult> Update(string Id, string categoryName, string description)
+        {
+            var b = await _iCategoryBll.Update(Id, categoryName, description);
+            if (b) return Json(ApiResulthelp.Success("成功"));
+            return Json(ApiResulthelp.Error("失败"));
+        }
+
+        public async Task<IActionResult> QueryCategoryInfo(string Id)
+        {
+            var catgory = await _iCategoryBll.Query(x => x.Id == Id);
+            return Json(ApiResulthelp.Success(catgory));
         }
 
         [HttpPost]
@@ -43,5 +56,11 @@ namespace CompanyManagement.Controllers
             if (b) return Json(ApiResulthelp.Success("成功"));
             return Json(ApiResulthelp.Error("失败"));
         }
+
+        //public async Task<IActionResult> Delete(List<string> Id)
+        //{
+
+        //    await _iCategoryBll.Delete()
+        //}
     }
 }

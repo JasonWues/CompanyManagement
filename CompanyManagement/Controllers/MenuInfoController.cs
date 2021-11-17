@@ -115,15 +115,11 @@ namespace CompanyManagement.Controllers
 
         public async Task<IActionResult> Delete(List<string> Id)
         {
-            int b = 0;
-            foreach (string id in Id)
+            int b = await _iMenuInfoBll.FakeDelete(x => Id.Contains(x.Id) && x.IsDelete == false, x => new MenuInfo()
             {
-                b += await _iMenuInfoBll.FakeDelete(x => x.Id == id && x.IsDelete == false, x => new MenuInfo()
-                {
-                    IsDelete = true,
-                    DeleteTime = DateTime.Now
-                });
-            }
+                IsDelete = true,
+                DeleteTime = DateTime.Now
+            });
 
             if (b > 0) return Json(ApiResulthelp.Success("成功"));
             return Json(ApiResulthelp.Error("删除失败"));

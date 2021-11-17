@@ -10,7 +10,7 @@ namespace Entity
         public string RoleName { get; set; } = null!;
 
         [Column(TypeName = "varchar(36)")]
-        public string Description { get; set; } = null!;
+        public string? Description { get; set; }
 
         public DateTime CreateTime { get; set; }
 

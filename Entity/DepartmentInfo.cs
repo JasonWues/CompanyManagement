@@ -10,11 +10,10 @@ namespace Entity
         public string DepartmentName { get; set; } = null!;
         
         [Column(TypeName = "nvarchar(32)")]
-        public string Description { get; set; } = null!;
+        public string? Description { get; set; }
 
         [Column(TypeName = "varchar(36)")]
-        [Required]
-        public string LeaderId { get; set; } = null!;
+        public string? LeaderId { get; set; }
 
         [Column(TypeName = "varchar(36)")]
         public string? ParentId { get; set; }
