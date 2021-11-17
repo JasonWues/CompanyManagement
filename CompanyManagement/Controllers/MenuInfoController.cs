@@ -107,11 +107,13 @@ namespace CompanyManagement.Controllers
             return View();
         }
 
-        //[HttpPost]
-        //public Task<IActionResult> Update()
-        //{
-
-        //}
+        [HttpPost]
+        public async Task<IActionResult> Update(string id,string title, string description, int level, int sort, string href, string parentId, string icon, string target)
+        {
+            var b = await _iMenuInfoBll.Update(id, title, description, level, sort, href, parentId, icon, target);
+            if (b) return Json(ApiResulthelp.Success(b));
+            return Json(ApiResulthelp.Error("错误"));
+        }
 
         public async Task<IActionResult> Delete(List<string> Id)
         {
@@ -121,7 +123,7 @@ namespace CompanyManagement.Controllers
                 DeleteTime = DateTime.Now
             });
 
-            if (b > 0) return Json(ApiResulthelp.Success("成功"));
+            if (b > 0) return Json(ApiResulthelp.Success(b));
             return Json(ApiResulthelp.Error("删除失败"));
         }
 

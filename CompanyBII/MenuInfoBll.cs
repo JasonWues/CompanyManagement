@@ -173,4 +173,21 @@ public class MenuInfoBll : BaseBll<MenuInfo>,IMenuInfoBll
         query = query.OrderBy(x => x.Sort).Skip((page - 1) * limit).Take(limit);
         return (await query.ToListAsync(), count);
     }
+
+    public async Task<bool> Update(string id, string title, string description, int level, int sort, string href, string parentId, string icon, string target)
+    {
+        MenuInfo menuInfo = new MenuInfo()
+        {
+            Id = id,
+            Title = title,
+            Description = description,
+            Level = level,
+            Sort = sort,
+            Href = href,
+            ParentId = parentId,
+            Icon = icon,
+            Target = target
+        };
+        return await _iBaseDal.Update(menuInfo);
+    }
 }

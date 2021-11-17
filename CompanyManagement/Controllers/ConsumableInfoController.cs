@@ -54,7 +54,7 @@ public class ConsumableInfoController : Controller
         consumableInfo.CreateTime = DateTime.Now;
         consumableInfo.IsDelete = false;
         var b =  await _iConsumableInfoBll.Create(consumableInfo);
-        if (b) return Json(ApiResulthelp.Success("成功"));
+        if (b) return Json(ApiResulthelp.Success(b));
         return Json(ApiResulthelp.Error("添加失败"));
 
     }

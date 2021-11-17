@@ -34,7 +34,7 @@ namespace CompanyManagement.Controllers
         public async Task<IActionResult> Update(string Id, string categoryName, string description)
         {
             var b = await _iCategoryBll.Update(Id, categoryName, description);
-            if (b) return Json(ApiResulthelp.Success("成功"));
+            if (b) return Json(ApiResulthelp.Success(b));
             return Json(ApiResulthelp.Error("失败"));
         }
 
@@ -53,7 +53,7 @@ namespace CompanyManagement.Controllers
             category.Description = description;
 
             var b = await _iCategoryBll.Create(category);
-            if (b) return Json(ApiResulthelp.Success("成功"));
+            if (b) return Json(ApiResulthelp.Success(b));
             return Json(ApiResulthelp.Error("失败"));
         }
 

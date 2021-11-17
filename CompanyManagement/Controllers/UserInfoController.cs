@@ -69,7 +69,7 @@ namespace CompanyManagement.Controllers
             };
 
             var b = await _userInfoBll.Create(entity);
-            if (b) return Json(ApiResulthelp.Success("成功"));
+            if (b) return Json(ApiResulthelp.Success(b));
             return Json(ApiResulthelp.Error("添加失败"));
         }
 
@@ -77,7 +77,7 @@ namespace CompanyManagement.Controllers
         public async Task<IActionResult> Delete(List<string> Id)
         {
             int b = await _userInfoBll.FakeDelete(x => Id.Contains(x.Id) && x.IsDelete == false, x => new UserInfo() { IsDelete = true, DeleteTime = DateTime.Now });
-            if (b > 0) return Json(ApiResulthelp.Success("成功"));
+            if (b > 0) return Json(ApiResulthelp.Success(b));
             return Json(ApiResulthelp.Error("删除失败"));
         }
 
@@ -90,7 +90,7 @@ namespace CompanyManagement.Controllers
         public async Task<IActionResult> Update(string Id, string userName, int sex, string phoneNum, string departmentInfoId)
         {
             var b = await _userInfoBll.Update(Id, userName, sex, phoneNum, departmentInfoId);
-            if (b) return Json(ApiResulthelp.Success("成功"));
+            if (b) return Json(ApiResulthelp.Success(b));
             return Json(ApiResulthelp.Error("修改失败"));
         }
 

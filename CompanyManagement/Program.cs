@@ -46,7 +46,8 @@ static string MD5Encrypt16(string password)
 
 static void InitDB()
 {
-    var contextOptions = new DbContextOptionsBuilder<CompanyContext>().UseSqlServer("server=.;database=CompanySystem;uid=sa;pwd=123456;").Options;
+    //var contextOptions = new DbContextOptionsBuilder<CompanyContext>().UseSqlServer("server=.;database=CompanySystem;uid=sa;pwd=123456;").Options;
+    var contextOptions = new DbContextOptionsBuilder<CompanyContext>().UseSqlServer(@"server=DESKTOP-QOGKNNM\SQLEXPRESS;database=CompanySystem;uid=sa;pwd=123456;").Options;
     using (CompanyContext context = new(contextOptions))
     {
         context.Database.EnsureDeleted();

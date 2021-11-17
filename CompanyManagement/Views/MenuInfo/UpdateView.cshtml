@@ -94,6 +94,7 @@
                     },
                     success: function(res){
                         form.val("Update",{
+                            "ID": res.currentMenuInfoTitle[0].id,
                             "Title": res.currentMenuInfoTitle[0].title,
                             "Description": res.currentMenuInfoTitle[0].description,
                             "Level": res.currentMenuInfoTitle[0].level,

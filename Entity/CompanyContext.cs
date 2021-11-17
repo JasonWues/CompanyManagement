@@ -17,8 +17,8 @@ namespace Entity
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //optionsBuilder.UseSqlServer(@"server=DESKTOP-QOGKNNM\SQLEXPRESS;database=CompanySystem;uid=sa;pwd=123456;");
-            optionsBuilder.UseSqlServer("server=.;database=CompanySystem;uid=sa;pwd=123456;");
+            optionsBuilder.UseSqlServer(@"server=DESKTOP-QOGKNNM\SQLEXPRESS;database=CompanySystem;uid=sa;pwd=123456;");
+            //optionsBuilder.UseSqlServer("server=.;database=CompanySystem;uid=sa;pwd=123456;");
         }
 
         public DbSet<UserInfo> UserInfo { get; set; }
@@ -27,10 +27,8 @@ namespace Entity
         public DbSet<DepartmentInfo> DepartmentInfo { get; set; } 
         public DbSet<MenuInfo> MenuInfo { get; set; }
         public DbSet<R_RoleInfo_MenuInfo> RRoleInfoMenuInfo { get; set; }
-
         public DbSet<Category> Category { get; set; }
         public DbSet<ConsumableInfo> ConsumableInfo { get; set; }
-
         public DbSet<ConsumableRecord> ConsumableRecord { get; set; }
     }
 }

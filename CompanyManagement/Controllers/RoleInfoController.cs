@@ -74,7 +74,7 @@ namespace CompanyManagement.Controllers
             };
 
             var b = await _iRoleInfoBll.Create(roleInfo);
-            if (b) return Json(ApiResulthelp.Success("成功"));
+            if (b) return Json(ApiResulthelp.Success(b));
             return Json(ApiResulthelp.Error("添加失败"));
         }
 
@@ -88,7 +88,7 @@ namespace CompanyManagement.Controllers
             });
 
 
-            if (b > 0) return Json(ApiResulthelp.Success("成功"));
+            if (b > 0) return Json(ApiResulthelp.Success(b));
             return Json(ApiResulthelp.Error("删除失败"));
         }
 
@@ -214,7 +214,7 @@ namespace CompanyManagement.Controllers
 
             await _iRRoleInfoMenuInfoBll.BatchInsert(addEntityList);
 
-            return Json(ApiResulthelp.Success("成功"));
+            return Json(ApiResulthelp.Success(true));
         }
 
     }
