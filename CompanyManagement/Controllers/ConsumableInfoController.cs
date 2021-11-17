@@ -40,7 +40,7 @@ public class ConsumableInfoController : Controller
         return Json(ApiResulthelp.Success(await _iCategoryBll.Query()));
     }
 
-    public async Task<IActionResult> Create(string description,string name,string categoryId, string specification,int num,string unit,decimal money)
+    public async Task<IActionResult> Create(string description,string name,string categoryId, string specification,string unit,decimal money)
     {
         ConsumableInfo consumableInfo = new ConsumableInfo();
         consumableInfo.Id = Guid.NewGuid().ToString();
@@ -48,7 +48,6 @@ public class ConsumableInfoController : Controller
         consumableInfo.Name = name;
         consumableInfo.CategoryId = categoryId;
         consumableInfo.Specification = specification;
-        consumableInfo.Num = num;
         consumableInfo.Unit = unit;
         consumableInfo.Money = money;
         consumableInfo.CreateTime = DateTime.Now;

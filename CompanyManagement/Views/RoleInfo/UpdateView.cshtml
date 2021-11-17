@@ -16,7 +16,7 @@
 </head>
 <body>
 <div class="layui-form layuimini-form">
-    <div class="layui-form layuimini-form">
+    <div class="layui-form layuimini-form" lay-filter="Update">
         <div class="layui-form-item" hidden>
             <label class="layui-form-label required">ID</label>
             <div class="layui-input-block">
@@ -26,7 +26,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label required">角色名称</label>
             <div class="layui-input-block">
-                <input type="text" name="DepartmentName" lay-verify="required" lay-reqtext="角色名称不能为空" placeholder="请输入角色名称" class="layui-input">
+                <input type="text" name="RoleName" lay-verify="required" lay-reqtext="角色名称不能为空" placeholder="请输入角色名称" class="layui-input">
             </div>
         </div>
 
@@ -50,6 +50,22 @@
         var form = layui.form,
             layer = layui.layer,
             $ = layui.$;
+
+
+              $.ajax({
+                    url: 'QueryRoleInfo',
+                    type: 'Get',
+                    data: {
+                        Id:parent.Id
+                    },
+                    success: function(res){
+                        form.val("Update",{
+                            "ID":res.data.Id,
+                            "RoleName":res.data.roleName,
+                            "Desctiption":res.data.description
+                        });
+                    }
+                })
 
         //监听提交
         form.on('submit(saveBtn)', function (data) {

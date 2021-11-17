@@ -1,1 +1,74 @@
-﻿
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>CreateRoleInfo</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="~/lib/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="~/layuimini/layuimini-2.0.6.1-iframe/css/public.css" media="all">
+    <style>
+        body {
+            background-color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-form layuimini-form">
+         <div class="layui-form-item">
+            <label class="layui-form-label">耗材</label>
+            <div class="layui-input-block">
+                <select name="ConsumableId" id="consumableSelect">
+                    <option value=""></option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label required">数量</label>
+            <div class="layui-input-block">
+                <input type="text" name="Num" lay-verify="required" lay-reqtext="数量不能为空" placeholder="请输入耗材数量" value="" class="layui-input">
+            </div>
+        </div>
+</div>
+<script src="~/lib/layui/layui.js" charset="utf-8"></script>
+<script>
+    layui.use(['form'], function () {
+        var form = layui.form,
+            layer = layui.layer,
+            $ = layui.$;
+
+        //监听提交
+        form.on('submit(saveBtn)', function (data) {
+           console.log(data);
+
+           $.ajax({
+               url: 'Create',
+               data: data.field,
+               type: 'post',
+               success: function (res) {
+                   console.log(res);
+                   if (res.code === 200) {
+                       var index = layer.alert(res.msg, {
+                           title: '提示'
+                       }, function () {
+
+                           // 关闭弹出层
+                           layer.close(index);
+                           var iframeIndex = parent.layer.getFrameIndex(window.name);
+                           parent.layer.close(iframeIndex);
+
+                           //刷新表格数据
+                           parent.reLoadTable();
+                       });
+                   } else {
+                       layer.alert(res.msg);
+                   }
+               }
+           });
+           return false;
+        });
+    });
+</script>
+</body>
+</html>

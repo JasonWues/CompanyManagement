@@ -165,7 +165,7 @@ namespace CompanyManagement.Controllers
             });
         }
 
-        public async Task<IActionResult> QueryRoleInfo(string roleInfoId)
+        public async Task<IActionResult> QueryMenuInfo(string roleInfoId)
         {
             var menuInfo = await _iMenuInfoBll.QueryDb().Where(x => x.IsDelete == false).Select(x => new
             {
@@ -215,6 +215,12 @@ namespace CompanyManagement.Controllers
             await _iRRoleInfoMenuInfoBll.BatchInsert(addEntityList);
 
             return Json(ApiResulthelp.Success(true));
+        }
+
+        public async Task<IActionResult> QueryRoleInfo(string Id)
+        {
+            var roleInfo = await _iRoleInfoBll.QueryDb().AsNoTracking().Where(x => x.IsDelete == false && x.Id == Id).ToListAsync();
+            return Json(ApiResulthelp.Success(roleInfo));
         }
 
     }
