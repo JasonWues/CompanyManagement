@@ -34,7 +34,7 @@
         <script type="text/html" id="toolbar">
             <div class="layui-btn-container">
                 <button class="layui-btn layui-btn-normal layui-btn-sm data-add-btn" lay-event="add"> 添加 </button>
-                <button class="layui-btn layui-btn-sm layui-btn-danger data-delete-btn" lay-event="delete"> 删除 </button>
+                <button class="layui-btn layui-btn-sm layui-btn-danger data-delete-btn" id="uploadBtn"> 文件上传 </button>
             </div>
         </script>
 
@@ -51,11 +51,14 @@
 <script>
     var tableIns;
     var Id;
+    var upload;
 
-    layui.use(['form', 'table'], function () {
-        var $ = layui.jquery,
-            form = layui.form,
-            table = layui.table;
+        layui.use(['form', 'table', 'upload'], function () {
+            var $ = layui.jquery,
+                form = layui.form,
+                table = layui.table;
+
+            upload = layui.upload;
 
         tableIns = table.render({
             elem: '#currentTableId',
@@ -84,6 +87,8 @@
             page: true,
             skin: 'line'
         });
+
+        reloadUpload();
 
         // 监听搜索操作
         form.on('submit(data-search-btn)', function (data) {
@@ -210,7 +215,23 @@
                 curr: 1 //重新从第 1 页开始
             }
         });
+
+        reloadUpload();
     }
+    function reloadUpload() {
+            upload.render({
+                elem: '#uploadBtn' //绑定元素
+                , url: 'Upload' //上传接口
+                , field: 'excelFiles'
+                , accept: 'file'
+                , done: function (res) {
+                    //上传完毕回调
+                }
+                , error: function () {
+                    //请求异常回调
+                }
+            });
+        }
 </script>
 
 </body>

@@ -3,6 +3,7 @@ using Entity.DTO;
 using ICompanyBll;
 using ICompanyDal;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
 
 namespace CompanyBll;
 
@@ -55,8 +56,34 @@ public class ConsumableRecordBll : BaseBll<ConsumableRecord>,IConsumableRecordBl
         return (await query.ToListAsync(), count);
     }
 
-    public async Task<bool> UpLoad(Stream stream, string userinfoId)
+    public async Task UpLoad(Stream stream, string userinfoId)
     {
-        
+        using (var package = new ExcelPackage(stream))
+        {
+            // 获取Exel指定工作簿，"Sheet1"也可以用索引代替
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            ExcelWorksheet worksheet = package.Workbook.Worksheets["Sheet1"];
+            int RowNum = worksheet.Dimension.Rows;
+            List<ConsumableRecord> consumableRecords = new List<ConsumableRecord>();
+
+
+            for (int row = 1; row <= RowNum; row++)
+            {
+                var name = worksheet.Cells[row, 1].Value.ToString();
+                var consumableInfo = _iConsumableInfoDal.QueryDb().FirstOrDefault(c => c.Name == name);
+
+                consumableRecords.Add(new ConsumableRecord
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    CreateTime = DateTime.Now,
+                    Type = 1,
+                    Creator = userinfoId,
+                    Num = int.Parse(worksheet.Cells[row, 2].Value.ToString()),
+                    ConsumableId = consumableInfo != null ? consumableInfo.Id : ""
+                });
+            }
+
+            await _iBaseDal.BatchInsert(consumableRecords);
+        }
     }
 }

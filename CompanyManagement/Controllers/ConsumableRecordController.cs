@@ -1,5 +1,6 @@
 ﻿using Entity;
 using ICompanyBll;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Utility.ApiResult;
@@ -64,9 +65,13 @@ namespace CompanyManagement.Controllers
             return Json(ApiResulthelp.Error("错误"));
         }
 
-        public async Task<IActionResult> UpLoad(List<IFormFile> excelFiles)
+        public async Task<IActionResult> UpLoad(IFormFile excelFiles)
         {
-
+            var userInfoJson = HttpContext.Session.GetString("UserInfo");
+            UserInfo userInfo = JsonConvert.DeserializeObject<UserInfo>(userInfoJson);
+            var stream = excelFiles.OpenReadStream();
+            await _iConsumableRecordBll.UpLoad(stream, userInfo.Id);
+            return Json(ApiResulthelp.Success(true));
         }
     }
 }
