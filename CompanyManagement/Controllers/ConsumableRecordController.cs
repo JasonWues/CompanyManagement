@@ -63,5 +63,10 @@ namespace CompanyManagement.Controllers
             if (b) return Json(ApiResulthelp.Success(b));
             return Json(ApiResulthelp.Error("错误"));
         }
+
+        public async Task<IActionResult> UpLoad(List<IFormFile> excelFiles)
+        {
+
+        }
     }
 }

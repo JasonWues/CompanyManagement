@@ -54,4 +54,9 @@ public class ConsumableRecordBll : BaseBll<ConsumableRecord>,IConsumableRecordBl
 
         return (await query.ToListAsync(), count);
     }
+
+    public async Task<bool> UpLoad(Stream stream, string userinfoId)
+    {
+        
+    }
 }
