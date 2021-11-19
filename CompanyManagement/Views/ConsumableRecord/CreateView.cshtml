@@ -30,6 +30,11 @@
                 <input type="text" name="Num" lay-verify="required" lay-reqtext="数量不能为空" placeholder="请输入耗材数量" value="" class="layui-input">
             </div>
         </div>
+                <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveBtn">确认保存</button>
+            </div>
+        </div>
 </div>
 <script src="~/lib/layui/layui.js" charset="utf-8"></script>
 <script>
@@ -37,6 +42,22 @@
         var form = layui.form,
             layer = layui.layer,
             $ = layui.$;
+
+
+            $.ajax({
+                url: 'QueryConsumableName',
+                type: 'Get',
+                success: function(res){
+                    if(res.code === 200){
+                        if(res.data.length > 0){
+                            for(var i =0;i<res.data.length;i++){
+                                $('#consumableSelect').append('<option value="' + res.data[i].id + '">' + res.data[i].name + '</option>');
+                            }
+                            form.render('select');
+                        }
+                    }
+                }
+            });
 
         //监听提交
         form.on('submit(saveBtn)', function (data) {

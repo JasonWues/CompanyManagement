@@ -2,6 +2,7 @@
 using ICompanyBll;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Utility.ApiResult;
 
@@ -10,9 +11,11 @@ namespace CompanyManagement.Controllers
     public class ConsumableRecordController : Controller
     {
         readonly IConsumableRecordBll _iConsumableRecordBll;
-        public ConsumableRecordController(IConsumableRecordBll iConsumableRecordBll)
+        readonly IConsumableInfoBll _iConsumableInfoBll;
+        public ConsumableRecordController(IConsumableRecordBll iConsumableRecordBll, IConsumableInfoBll iConsumableInfoBll)
         {
             _iConsumableRecordBll = iConsumableRecordBll;
+            _iConsumableInfoBll = iConsumableInfoBll;
         }
 
         public IActionResult Index()
@@ -24,6 +27,16 @@ namespace CompanyManagement.Controllers
         {
             (var list, var count) = await _iConsumableRecordBll.Query(page, limit, consumableId);
             return Json(ApiResulthelp.Success(list, count));
+        }
+
+        public async Task<IActionResult> QueryConsumableName()
+        {
+            var consumableInfo = await _iConsumableInfoBll.QueryDb().AsNoTracking().Where(x => x.IsDelete == false).Select(x => new
+            {
+                x.Name,
+                x.Id
+            }).ToListAsync();
+            return Json(ApiResulthelp.Success(consumableInfo));
         }
 
         public IActionResult CreateView()
@@ -72,6 +85,18 @@ namespace CompanyManagement.Controllers
             var stream = excelFiles.OpenReadStream();
             await _iConsumableRecordBll.UpLoad(stream, userInfo.Id);
             return Json(ApiResulthelp.Success(true));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(List<string> Id)
+        {
+            int x = 0;
+            foreach (var id in Id)
+            {
+                x += await _iConsumableRecordBll.Delete(id) ? 1 : 0;
+            }
+            if(x > 0)return Json(ApiResulthelp.Success(true));
+            return Json(ApiResulthelp.Error("删除失败"));
         }
     }
 }

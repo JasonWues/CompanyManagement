@@ -41,9 +41,9 @@ public class ConsumableRecordBll : BaseBll<ConsumableRecord>,IConsumableRecordBl
                      from ccu in record_Userinfo.DefaultIfEmpty()
                      select new Record_ConsumableInfo_UserInfo
                      {
-                         Id = cc.Id,
+                         Id = record.Id,
                          CreateTime = cc.CreateTime.ToString("f"),
-                         Num = cc.Num,
+                         Num = record.Num,
                          Type = record.Type == 1 ? "入库" : "出库",
                          ConsumableName = cc.Name,
                          UserName = ccu.UserName
