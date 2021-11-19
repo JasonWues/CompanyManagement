@@ -35,6 +35,7 @@
             <div class="layui-btn-container">
                 <button class="layui-btn layui-btn-normal layui-btn-sm data-add-btn" lay-event="add"> 添加 </button>
                 <button class="layui-btn layui-btn-sm layui-btn-danger data-delete-btn" id="uploadBtn"> 文件上传 </button>
+                 <button class="layui-btn layui-btn-sm layui-btn-danger data-delete-btn" lay-event="delete"> 删除 </button>
             </div>
         </script>
 
@@ -225,10 +226,11 @@
                 , field: 'excelFiles'
                 , accept: 'file'
                 , done: function (res) {
-                    //上传完毕回调
+                    layer.msg(res.msg)
+                    reLoadTable()
                 }
                 , error: function () {
-                    //请求异常回调
+                    layer.msg(res.msg)
                 }
             });
         }

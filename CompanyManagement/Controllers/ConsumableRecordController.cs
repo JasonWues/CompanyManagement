@@ -83,8 +83,9 @@ namespace CompanyManagement.Controllers
             var userInfoJson = HttpContext.Session.GetString("UserInfo");
             UserInfo userInfo = JsonConvert.DeserializeObject<UserInfo>(userInfoJson);
             var stream = excelFiles.OpenReadStream();
-            await _iConsumableRecordBll.UpLoad(stream, userInfo.Id);
-            return Json(ApiResulthelp.Success(true));
+            (var isAdd,string msg) = await _iConsumableRecordBll.UpLoad(stream, userInfo.Id);
+            if (isAdd) return Json(ApiResulthelp.Success(isAdd));
+            return Json(ApiResulthelp.Error(msg));
         }
 
         [HttpPost]

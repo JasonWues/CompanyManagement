@@ -7,7 +7,7 @@ using OfficeOpenXml;
 
 namespace CompanyBll;
 
-public class ConsumableRecordBll : BaseBll<ConsumableRecord>,IConsumableRecordBll
+public class ConsumableRecordBll : BaseBll<ConsumableRecord>, IConsumableRecordBll
 {
     readonly IUserInfoDal _iUserInfoDal;
     readonly IConsumableInfoDal _iConsumableInfoDal;
@@ -32,22 +32,22 @@ public class ConsumableRecordBll : BaseBll<ConsumableRecord>,IConsumableRecordBl
         var consumableInfo = _iConsumableInfoDal.QueryDb().Where(x => x.IsDelete == false);
 
         var query = from record in consumableRecord
-                     join consumable in consumableInfo
-                     on record.ConsumableId equals consumable.Id into record_consumable
-                     from cc in record_consumable.DefaultIfEmpty()
+                    join consumable in consumableInfo
+                    on record.ConsumableId equals consumable.Id into record_consumable
+                    from cc in record_consumable.DefaultIfEmpty()
 
-                     join u in userInfo
-                     on record.Creator equals u.Id into record_Userinfo
-                     from ccu in record_Userinfo.DefaultIfEmpty()
-                     select new Record_ConsumableInfo_UserInfo
-                     {
-                         Id = record.Id,
-                         CreateTime = cc.CreateTime.ToString("f"),
-                         Num = record.Num,
-                         Type = record.Type == 1 ? "入库" : "出库",
-                         ConsumableName = cc.Name,
-                         UserName = ccu.UserName
-                     };
+                    join u in userInfo
+                    on record.Creator equals u.Id into record_Userinfo
+                    from ccu in record_Userinfo.DefaultIfEmpty()
+                    select new Record_ConsumableInfo_UserInfo
+                    {
+                        Id = record.Id,
+                        CreateTime = cc.CreateTime.ToString("f"),
+                        Num = record.Num,
+                        Type = record.Type == 1 ? "入库" : "出库",
+                        ConsumableName = cc.Name,
+                        UserName = ccu.UserName
+                    };
 
         count = query.Count();
 
@@ -56,7 +56,7 @@ public class ConsumableRecordBll : BaseBll<ConsumableRecord>,IConsumableRecordBl
         return (await query.ToListAsync(), count);
     }
 
-    public async Task UpLoad(Stream stream, string userinfoId)
+    public async Task<(bool isAdd, string msg)> UpLoad(Stream stream, string userinfoId)
     {
         using (var package = new ExcelPackage(stream))
         {
@@ -64,26 +64,42 @@ public class ConsumableRecordBll : BaseBll<ConsumableRecord>,IConsumableRecordBl
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             ExcelWorksheet worksheet = package.Workbook.Worksheets["Sheet1"];
             int RowNum = worksheet.Dimension.Rows;
+            //没有错误的实体数组
             List<ConsumableRecord> consumableRecords = new List<ConsumableRecord>();
 
+            string errorMsg = string.Empty;
 
             for (int row = 1; row <= RowNum; row++)
             {
-                var name = worksheet.Cells[row, 1].Value.ToString();
-                var consumableInfo = _iConsumableInfoDal.QueryDb().FirstOrDefault(c => c.Name == name);
-
-                consumableRecords.Add(new ConsumableRecord
+                if (worksheet.Cells[row, 1].Value == null)
                 {
-                    Id = Guid.NewGuid().ToString(),
-                    CreateTime = DateTime.Now,
-                    Type = 1,
-                    Creator = userinfoId,
-                    Num = int.Parse(worksheet.Cells[row, 2].Value.ToString()),
-                    ConsumableId = consumableInfo != null ? consumableInfo.Id : ""
-                });
+                    continue;
+                }
+                var name = worksheet.Cells[row, 1].Value.ToString().Trim();
+                var consumableInfo = _iConsumableInfoDal.QueryDb().FirstOrDefault(c => c.Name == name);
+                if (consumableInfo != null)
+                {
+                    consumableRecords.Add(new ConsumableRecord
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        CreateTime = DateTime.Now,
+                        Type = 1,
+                        Creator = userinfoId,
+                        Num = int.Parse(worksheet.Cells[row, 2].Value.ToString()),
+                        ConsumableId = consumableInfo.Id
+                    });
+                }
+                else
+                {
+                    errorMsg = string.Format("{0}商品名称有误,位于第{1}行", name, row);
+                    return (false, errorMsg);
+                }
+
             }
 
             await _iBaseDal.BatchInsert(consumableRecords);
+            return (true, string.Empty);
+
         }
     }
 }
