@@ -20,7 +20,9 @@
                             <div class="layui-inline">
                                 <label class="layui-form-label">耗材名</label>
                                 <div class="layui-input-inline">
-                                    <input type="text" name="UserName" autocomplete="off" class="layui-input">
+                                      <select name="ConsumableName" id="ConsumableSelect">
+                                        <option value=""></option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="layui-inline">
@@ -61,6 +63,20 @@
 
             upload = layui.upload;
 
+
+            $.ajax({
+                url:'QueryConsumableName',
+                type:'get',
+                success: function(res){
+                    if(res.data.length > 0){
+                             for(var i = 0;i < res.data.length;i++){
+                                $('#ConsumableSelect').append('<option value="'+res.data[i].id +'">' + res.data[i].name + '</option>')
+                            }  
+                    }
+                    form.render('select');
+                }
+            });
+
         tableIns = table.render({
             elem: '#currentTableId',
             url: 'Query',
@@ -95,7 +111,7 @@
         form.on('submit(data-search-btn)', function (data) {
             tableIns.reload({
                 where: { //设定异步数据接口的额外参数，任意设
-                    userName: data.field.CategoryName, 
+                    consumableId: data.field.consumableName, 
                 },
                 page: {
                         curr: 1 //重新从第 1 页开始

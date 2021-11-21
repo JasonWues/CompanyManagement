@@ -84,7 +84,7 @@
         form.on('submit(data-search-btn)', function (data) {
             tableIns.reload({
                 where: { //设定异步数据接口的额外参数，任意设
-                    userName: data.field.CategoryName, 
+                    categoryName: data.field.CategoryName, 
                 },
                 page: {
                         curr: 1 //重新从第 1 页开始

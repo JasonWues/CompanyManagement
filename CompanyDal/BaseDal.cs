@@ -64,6 +64,11 @@ public class BaseDal<TEntity> :IBaseDal<TEntity> where TEntity : BaseId
         return false;
     }
 
+    public async Task<bool> Update(Expression<Func<TEntity,bool>> func,Expression<Func<TEntity,TEntity>> updateFunc)
+    {
+        return await _companyContext.Set<TEntity>().Where(func).BatchUpdateAsync(updateFunc) > 1 ? true: false;
+    }
+
     public async Task<TEntity> Find(string Id)
     {
         return await _companyContext.Set<TEntity>().FindAsync(Id) ?? throw new InvalidOperationException();

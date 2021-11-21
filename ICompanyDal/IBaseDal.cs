@@ -19,6 +19,8 @@ public interface IBaseDal<TEntity> where TEntity : class
 
     public Task<bool> Update(TEntity entity);
 
+    public Task<bool> Update(Expression<Func<TEntity, bool>> func, Expression<Func<TEntity, TEntity>> updateFunc);
+
     public Task<TEntity> Find(string Id);
 
     public bool CreateVerification(Expression<Func<TEntity, bool>> func);
