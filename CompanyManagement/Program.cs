@@ -32,6 +32,12 @@ builder.Services.AddScoped<ICategoryDal, CategoryDal>();
 builder.Services.AddScoped<ICategoryBll, CategoryBll>();
 builder.Services.AddScoped<IConsumableRecordDal, ConsumableRecordDal>();
 builder.Services.AddScoped<IConsumableRecordBll, ConsumableRecordBll>();
+builder.Services.AddScoped<IWorkFlow_InstanceDal, WorkFlow_InstanceDal>();
+builder.Services.AddScoped<IWorkFlow_InstanceBll, WorkFlow_InstanceBll>();
+builder.Services.AddScoped<IWorkFlow_InstanceStepDal, WorkFlow_InstanceStepDal>();
+builder.Services.AddScoped<IWorkFlow_InstanceStepBll, WorkFlow_InstanceStepBll>();
+builder.Services.AddScoped<IWorkFlow_ModelDal, WorkFlow_ModelDal>();
+builder.Services.AddScoped<IWorkFlow_ModelBll, WorkFlow_ModelBll>();
 #endregion
 
 //InitDB();

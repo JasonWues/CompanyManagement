@@ -90,7 +90,6 @@ namespace CompanyManagement.Controllers
 
         public async Task<IActionResult> DownLoad()
         {
-
             var stream = await _iConsumableRecordBll.DownLoad();
             return File(stream, "application/octet-stream", "output.xlsx");
         }

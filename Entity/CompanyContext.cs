@@ -30,5 +30,8 @@ namespace Entity
         public DbSet<Category> Category { get; set; }
         public DbSet<ConsumableInfo> ConsumableInfo { get; set; }
         public DbSet<ConsumableRecord> ConsumableRecord { get; set; }
+        public DbSet<WorkFlow_Instance> WorkFlow_Instances { get; set; }
+        public DbSet<WorkFlow_InstanceStep> WorkFlow_InstanceSteps { get; set; }
+        public DbSet<WorkFlow_Model> WorkFlow_Models { get; set; }
     }
 }
