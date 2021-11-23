@@ -18,6 +18,43 @@ public class ConsumableRecordBll : BaseBll<ConsumableRecord>, IConsumableRecordB
         _iConsumableInfoDal = iConsumableInfoDal;
     }
 
+    public async Task<Stream> DownLoad()
+    {
+        var query = await (from x in _iBaseDal.QueryDb().AsQueryable()
+                     join c in _iConsumableInfoDal.QueryDb().Where(x => x.IsDelete == false)
+                     on x.ConsumableId equals c.Id
+                     select new
+                     {
+                         x.Num,
+                         c.Name,
+                         CreateTime =  x.CreateTime.ToString("g"),
+                         Type =  x.Type == 1 ? "入库" : "出库"
+                     }).ToListAsync();
+
+        var currentPath = Directory.GetCurrentDirectory();
+        var fileName = "output.xlsx";
+        var filePath = Path.Combine(currentPath, fileName);
+
+        FileStream fileStream = new FileStream(filePath,FileMode.OpenOrCreate,FileAccess.ReadWrite);
+
+        fileStream.Dispose();
+
+        FileInfo fileInfo = new FileInfo(filePath);
+
+        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        using (var packapge = new ExcelPackage(fileInfo))
+        {
+            var worksheet = packapge.Workbook.Worksheets.Add("Sheet1");
+
+            worksheet.Cells.LoadFromCollection(query, false);
+
+            await packapge.SaveAsync();
+        }
+
+        FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+        return fs;
+    }
+
     public async Task<(List<Record_ConsumableInfo_UserInfo> list, int count)> Query(int page, int limit, string consumableId)
     {
         var consumableRecord = _iBaseDal.QueryDb().AsQueryable();
@@ -58,18 +95,21 @@ public class ConsumableRecordBll : BaseBll<ConsumableRecord>, IConsumableRecordB
 
     public async Task<(bool isAdd, string msg)> UpLoad(Stream stream, string userinfoId)
     {
+        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
         using (var package = new ExcelPackage(stream))
         {
             // 获取Exel指定工作簿，"Sheet1"也可以用索引代替
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             ExcelWorksheet worksheet = package.Workbook.Worksheets["Sheet1"];
-            int RowNum = worksheet.Dimension.Rows;
+            //全部行数
+            int rowNum = worksheet.Dimension.Rows;
             //没有错误的实体数组
             List<ConsumableRecord> consumableRecords = new List<ConsumableRecord>();
+            //修改
+            List<ConsumableInfo> consumableInfos = new List<ConsumableInfo>();
 
             string errorMsg = string.Empty;
 
-            for (int row = 1; row <= RowNum; row++)
+            for (int row = 2; row <= rowNum; row++)
             {
                 if (worksheet.Cells[row, 1].Value == null)
                 {

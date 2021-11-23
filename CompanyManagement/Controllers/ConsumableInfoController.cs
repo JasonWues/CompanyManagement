@@ -52,6 +52,12 @@ public class ConsumableInfoController : Controller
         consumableInfo.Money = money;
         consumableInfo.CreateTime = DateTime.Now;
         consumableInfo.IsDelete = false;
+
+        if (_iConsumableInfoBll.CreateVerification(x => x.Name == name && x.IsDelete == false))
+        {
+            return Json(ApiResulthelp.Error("耗材已存在"));
+        }
+
         var b =  await _iConsumableInfoBll.Create(consumableInfo);
         if (b) return Json(ApiResulthelp.Success(b));
         return Json(ApiResulthelp.Error("添加失败"));

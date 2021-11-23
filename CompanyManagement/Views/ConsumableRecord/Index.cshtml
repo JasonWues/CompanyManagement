@@ -37,7 +37,8 @@
             <div class="layui-btn-container">
                 <button class="layui-btn layui-btn-normal layui-btn-sm data-add-btn" lay-event="add"> 添加 </button>
                 <button class="layui-btn layui-btn-sm layui-btn-danger data-delete-btn" id="uploadBtn"> 文件上传 </button>
-                 <button class="layui-btn layui-btn-sm layui-btn-danger data-delete-btn" lay-event="delete"> 删除 </button>
+                <button class="layui-btn layui-btn-sm layui-btn-danger data-delete-btn" id="downloadBtn" lay-event="download"> 文件下载 </button>
+                <button class="layui-btn layui-btn-sm layui-btn-danger data-delete-btn" lay-event="delete"> 删除 </button>
             </div>
         </script>
 
@@ -171,6 +172,8 @@
                        }
                    }
                })
+            }else if(obj.event === 'download'){
+                window.open('DownLoad');
             }
         });
 

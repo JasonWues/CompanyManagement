@@ -88,6 +88,14 @@ namespace CompanyManagement.Controllers
             return Json(ApiResulthelp.Error(msg));
         }
 
+        public async Task<IActionResult> DownLoad()
+        {
+
+            var stream = await _iConsumableRecordBll.DownLoad();
+            return File(stream, "application/octet-stream", "output.xlsx");
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> Delete(List<string> Id)
         {
