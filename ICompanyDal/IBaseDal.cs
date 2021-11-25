@@ -10,6 +10,7 @@ public interface IBaseDal<TEntity> where TEntity : class
 
     public Task<List<TEntity>> Query(Expression<Func<TEntity, bool>> func);
 
+    public Task<List<TEntity>> QueryPage(int page, int limit);
 
     public Task<List<TEntity>> QueryPage(int page, int limit,Expression<Func<TEntity,bool>> func);
 

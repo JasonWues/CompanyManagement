@@ -108,7 +108,7 @@ namespace CompanyManagement.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Update(string id,string title, string description, int level, int sort, string href, string parentId, string icon, string target)
+        public async Task<IActionResult> Update(string id, string title, string description, int level, int sort, string href, string parentId, string icon, string target)
         {
             var b = await _iMenuInfoBll.Update(id, title, description, level, sort, href, parentId, icon, target);
             if (b) return Json(ApiResulthelp.Success(b));
@@ -117,16 +117,32 @@ namespace CompanyManagement.Controllers
 
         public async Task<IActionResult> Delete(List<string> Id)
         {
-            int b = await _iMenuInfoBll.FakeDelete(x => Id.Contains(x.Id) && x.IsDelete == false, x => new MenuInfo()
+            string jsonUserInfo = HttpContext.Session.GetString("UserInfo");
+            UserInfo userInfo = JsonConvert.DeserializeObject<UserInfo>(jsonUserInfo);
+
+            if (userInfo == null)
             {
-                IsDelete = true,
-                DeleteTime = DateTime.Now
-            });
+                return Json(ApiResulthelp.Error("无登录信息"));
+            }
+            else
+            {
+                if (userInfo.isAdmin == 0)
+                {
+                    return Json(ApiResulthelp.Error("当前账号不是管理员"));
+                }
+                else
+                {
+                    int b = await _iMenuInfoBll.FakeDelete(x => Id.Contains(x.Id) && x.IsDelete == false, x => new MenuInfo()
+                    {
+                        IsDelete = true,
+                        DeleteTime = DateTime.Now
+                    });
 
-            if (b > 0) return Json(ApiResulthelp.Success(b));
-            return Json(ApiResulthelp.Error("删除失败"));
+                    if (b > 0) return Json(ApiResulthelp.Success(b));
+                    return Json(ApiResulthelp.Error("删除失败"));
+                }
+            }
+
         }
-
-
     }
 }

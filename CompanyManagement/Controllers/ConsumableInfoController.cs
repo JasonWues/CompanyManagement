@@ -9,10 +9,12 @@ public class ConsumableInfoController : Controller
 {
     readonly IConsumableInfoBll _iConsumableInfoBll;
     readonly ICategoryBll _iCategoryBll;
-    public ConsumableInfoController(IConsumableInfoBll iConsumableInfoBll,ICategoryBll iCategoryBll)
+    readonly IConsumableRecordBll _iConsumableRecordBll;
+    public ConsumableInfoController(IConsumableInfoBll iConsumableInfoBll,ICategoryBll iCategoryBll, IConsumableRecordBll iConsumableRecordBll)
     {
         _iConsumableInfoBll = iConsumableInfoBll;
         _iCategoryBll = iCategoryBll;
+        _iConsumableRecordBll = iConsumableRecordBll;
     }
     public IActionResult Index()
     {
@@ -66,8 +68,18 @@ public class ConsumableInfoController : Controller
 
     public async Task<IActionResult> Delete(List<string> Id)
     {
-        var b = await _iConsumableInfoBll.FakeDelete(x => Id.Contains(x.Id),x => new ConsumableInfo() { IsDelete = true,DeleteTime = DateTime.Now});
-        if (b > 0) return Json(ApiResulthelp.Success("删除成功"));
-        return Json(ApiResulthelp.Error("失败"));
+        var bindNum = _iConsumableRecordBll.QueryDb().Where(x => Id.Contains(x.ConsumableId)).Count();
+
+        if(bindNum > 0)
+        {
+            return Json(ApiResulthelp.Error("该数据已绑定"));
+        }
+        else
+        {
+            var b = await _iConsumableInfoBll.FakeDelete(x => Id.Contains(x.Id), x => new ConsumableInfo() { IsDelete = true, DeleteTime = DateTime.Now });
+            if (b > 0) return Json(ApiResulthelp.Success("删除成功"));
+            return Json(ApiResulthelp.Error("失败"));
+        }
+
     }
 }

@@ -39,6 +39,11 @@ public class BaseBll<TEntity> : IBaseBll<TEntity> where TEntity : class
         return await _iBaseDal.Query(func);
     }
 
+    public async Task<List<TEntity>> QueryPage(int page, int limit)
+    {
+        return await _iBaseDal.QueryPage(page, limit);
+    }
+
     public async Task<List<TEntity>> QueryPage(int page, int limit, Expression<Func<TEntity, bool>> func)
     {
         return await _iBaseDal.QueryPage(page,limit,func);
@@ -63,4 +68,6 @@ public class BaseBll<TEntity> : IBaseBll<TEntity> where TEntity : class
     {
          await _iBaseDal.BatchInsert(entityList);
     }
+
+
 }

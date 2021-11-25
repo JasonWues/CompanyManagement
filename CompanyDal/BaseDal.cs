@@ -35,6 +35,10 @@ public class BaseDal<TEntity> :IBaseDal<TEntity> where TEntity : BaseId
         return await _companyContext.Set<TEntity>().AsNoTracking().ToListAsync();
     }
 
+    public async Task<List<TEntity>> QueryPage(int page, int limit)
+    {
+        return await _companyContext.Set<TEntity>().Skip((page-1)*5).Take(limit).ToListAsync();
+    }
 
     public async Task<List<TEntity>> QueryPage(int page, int limit, Expression<Func<TEntity, bool>> func)
     {
@@ -98,4 +102,5 @@ public class BaseDal<TEntity> :IBaseDal<TEntity> where TEntity : BaseId
     {
         return await _companyContext.Set<TEntity>().AsNoTracking().Where(func).ToListAsync();
     }
+
 }

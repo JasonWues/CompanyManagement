@@ -18,6 +18,15 @@ public interface IBaseBll<TEntity> where TEntity : class
     /// <returns></returns>
     public Task<List<TEntity>> Query(Expression<Func<TEntity, bool>> func);
 
+
+    /// <summary>
+    /// 分页查询
+    /// </summary>
+    /// <param name="page"></param>
+    /// <param name="limit"></param>
+    /// <returns></returns>
+    public Task<List<TEntity>> QueryPage(int page, int limit);
+
     /// <summary>
     /// 分页条件查询
     /// </summary>
