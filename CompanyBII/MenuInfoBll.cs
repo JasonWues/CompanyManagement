@@ -6,12 +6,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CompanyBll;
 
-public class MenuInfoBll : BaseBll<MenuInfo>,IMenuInfoBll
+public class MenuInfoBll : BaseBll<MenuInfo>, IMenuInfoBll
 {
     readonly IRUserInfo_RoleInfoDal _iRUserInfo_RoleInfoDal;
     readonly IRRoleInfoMenuInfoDal _iRRoleInfoMenuInfoDal;
     readonly IRoleInfoDal _iRoleInfoDal;
-    public MenuInfoBll(IMenuInfoDal iMenuInfoDal, IRUserInfo_RoleInfoDal iR_UserInfo_RoleInfoDal,IRRoleInfoMenuInfoDal iRRoleInfoMenuInfoDal,IRoleInfoDal iRoleInfoDal)
+    public MenuInfoBll(IMenuInfoDal iMenuInfoDal, IRUserInfo_RoleInfoDal iR_UserInfo_RoleInfoDal, IRRoleInfoMenuInfoDal iRRoleInfoMenuInfoDal, IRoleInfoDal iRoleInfoDal)
     {
         _iBaseDal = iMenuInfoDal;
         _iRUserInfo_RoleInfoDal = iR_UserInfo_RoleInfoDal;
@@ -19,9 +19,9 @@ public class MenuInfoBll : BaseBll<MenuInfo>,IMenuInfoBll
         _iRoleInfoDal = iRoleInfoDal;
     }
 
-    public void RecursionMenu(List<ParentMenuInfo> parentMenuInfos,List<MainMenuInfo> menus)
+    public void RecursionMenu(List<ParentMenuInfo> parentMenuInfos, List<MainMenuInfo> menus)
     {
-        foreach(var item in parentMenuInfos)
+        foreach (var item in parentMenuInfos)
         {
             var chlidMenusItem = menus.Where(x => x.ParentId == item.Id).Select(x => new ParentMenuInfo
             {
@@ -41,17 +41,18 @@ public class MenuInfoBll : BaseBll<MenuInfo>,IMenuInfoBll
 
     public async Task<List<ParentMenuInfo>> GetMenuInfoJson(UserInfo userInfo)
     {
-        
-        //找出超级管理员
-         var isSuperAdmin =  await (from x in _iRUserInfo_RoleInfoDal.QueryDb().Where(x => x.UserId == userInfo.Id)
-         join s in _iRoleInfoDal.QueryDb().Where(x => x.RoleName == "系统管理员")
-         on x.RoleId equals s.Id
-         select x.Id).CountAsync() > 0 ? true : false;
 
-        List<MainMenuInfo> menus;
+        //找出超级管理员
+        var isSuperAdmin = await (from x in _iRUserInfo_RoleInfoDal.QueryDb().Where(x => x.UserId == userInfo.Id)
+                                  join s in _iRoleInfoDal.QueryDb().Where(x => x.RoleName == "系统管理员" && x.IsDelete == false)
+                                  on x.RoleId equals s.Id
+                                  select x.Id).CountAsync() > 0 ? true : false;
+
+        List<MainMenuInfo> menus = new List<MainMenuInfo>();
 
         if (userInfo.isAdmin == 1 && isSuperAdmin)
         {
+            //获取所有菜单集合信息
             menus = _iBaseDal.QueryDb().Where(x => x.IsDelete == false).OrderBy(x => x.Sort).Select(x => new MainMenuInfo
             {
                 Id = x.Id,
@@ -62,33 +63,6 @@ public class MenuInfoBll : BaseBll<MenuInfo>,IMenuInfoBll
                 Level = x.Level,
                 ParentId = x.ParentId
             }).ToList();
-
-            
-            //找出父级菜单
-            var parentMenus = menus.Where(x => x.Level == 0 && x.ParentId == null).Select(x => new ParentMenuInfo
-            {
-                Id = x.Id,
-                Href = x.Href,
-                Icon = x.Icon,
-                Target = x.Target,
-                Title = x.Title
-            }).ToList();
-
-            foreach (var parentMenu in parentMenus)
-            {
-                var childMenus = menus.Where(m => m.ParentId == parentMenu.Id).Select(x => new ParentMenuInfo
-                {
-                    Id = x.Id,
-                    Href = x.Href,
-                    Icon = x.Icon,
-                    Target = x.Target,
-                    Title = x.Title
-                }).ToList();
-
-                parentMenu.child = childMenus;
-                RecursionMenu(parentMenu.child, menus);
-            }
-            return parentMenus;
         }
         else
         {
@@ -96,18 +70,48 @@ public class MenuInfoBll : BaseBll<MenuInfo>,IMenuInfoBll
 
             var menuinfoId = await _iRRoleInfoMenuInfoDal.QueryDb().Where(x => roleInfoId.Contains(x.RoleId)).Select(x => x.MenuId).ToListAsync();
 
-            menus = await _iBaseDal.QueryDb().Where(x => menuinfoId.Contains(x.Id)).Select(x => new MainMenuInfo
-            {
-                Id = x.Id,
-                Title = x.Title,
-                Icon = x.Icon,
-                Href = x.Href,
-                Target = x.Target,
-                Level = x.Level,
-                ParentId = x.ParentId
-            }).ToListAsync();
+            menuinfoId = menuinfoId.Distinct().ToList();
 
-            var parentMenus = menus.Where(x => x.Level == 0 && x.ParentId == null).Select(x => new ParentMenuInfo
+            menus = (from x in await _iBaseDal.QueryDb().Where(x => menuinfoId.Contains(x.Id)).ToListAsync()
+                     join menuid in menuinfoId
+                     on x.Id equals menuid
+                     select new
+                     {
+                         Id = x.Id,
+                         x.Sort,
+                         Title = x.Title,
+                         Icon = x.Icon,
+                         Href = x.Href,
+                         Target = x.Target,
+                         Level = x.Level,
+                         ParentId = x.ParentId
+                     }).OrderBy(x => x.Sort).Select(x => new MainMenuInfo
+                     {
+                         Id = x.Id,
+                         Title = x.Title,
+                         Icon = x.Icon,
+                         Href = x.Href,
+                         Target = x.Target,
+                         Level = x.Level,
+                         ParentId = x.ParentId
+                     }).ToList();
+        }
+
+        //获取父级菜单集合信息
+        List<ParentMenuInfo> parentMenuInfos = menus.Where(x => x.Level == 0 && x.ParentId == null).Select(x => new ParentMenuInfo
+        {
+            Id = x.Id,
+            Href = x.Href,
+            Icon = x.Icon,
+            Target = x.Target,
+            Title = x.Title
+        }).ToList();
+
+
+        foreach (var parentMenu in parentMenuInfos)
+        {
+            //查询父级菜单自己的自己菜单
+            var childMenus = menus.Where(m => m.ParentId == parentMenu.Id).Select(x => new ParentMenuInfo
             {
                 Id = x.Id,
                 Href = x.Href,
@@ -116,27 +120,15 @@ public class MenuInfoBll : BaseBll<MenuInfo>,IMenuInfoBll
                 Title = x.Title
             }).ToList();
 
-            foreach (var parentMenu in parentMenus)
-            {
-                var childMenus = menus.Where(m => m.ParentId == parentMenu.Id).Select(x => new ParentMenuInfo
-                {
-                    Id = x.Id,
-                    Href = x.Href,
-                    Icon = x.Icon,
-                    Target = x.Target,
-                    Title = x.Title
-                }).ToList();
-
-                parentMenu.child = childMenus;
-                RecursionMenu(parentMenu.child, menus);
-            }
-            return parentMenus;
+            parentMenu.child = childMenus;
+            RecursionMenu(parentMenu.child, menus);
 
         }
-             
+
+        return parentMenuInfos;
     }
 
-  
+
 
 
     public async Task<(List<MenuInfo_MenuInfo> list, int count)> Query(string title, int page, int limit)
