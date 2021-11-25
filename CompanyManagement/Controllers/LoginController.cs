@@ -1,4 +1,5 @@
-﻿using ICompanyBll;
+﻿using Entity;
+using ICompanyBll;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Utility;
@@ -42,6 +43,29 @@ public class LoginController : Controller
         {
             return Json(ApiResulthelp.Error("没有这个用户"));
         }
+    }
+
+    public IActionResult IsAdmin()
+    {
+        string jsonUserInfo = HttpContext.Session.GetString("UserInfo");
+        UserInfo userInfo = JsonConvert.DeserializeObject<UserInfo>(jsonUserInfo);
+
+        if (userInfo != null)
+        {
+            if(userInfo.isAdmin == 1)
+            {
+                return Json(ApiResulthelp.Success("管理员"));
+            }
+            else
+            {
+                return Json(ApiResulthelp.Error("不是管理员"));
+            }
+        }
+        else
+        {
+            return Json(ApiResulthelp.Error("无数据"));
+        }
+
     }
 
     public void Logout()

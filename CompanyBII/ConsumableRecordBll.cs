@@ -35,7 +35,7 @@ public class ConsumableRecordBll : BaseBll<ConsumableRecord>, IConsumableRecordB
         var fileName = "output.xlsx";
         var filePath = Path.Combine(currentPath, fileName);
 
-        FileStream fileStream = new FileStream(filePath,FileMode.OpenOrCreate,FileAccess.ReadWrite);
+        FileStream fileStream = new FileStream(filePath,FileMode.Create,FileAccess.ReadWrite);
 
         fileStream.Dispose();
 

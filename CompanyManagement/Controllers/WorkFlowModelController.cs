@@ -69,5 +69,19 @@ namespace CompanyManagement.Controllers
             return Json(ApiResulthelp.Error("修改失败"));
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Delete(List<string> Id)
+        {
+            int b = await _iWorkFlow_ModelBll.FakeDelete(x => Id.Contains(x.Id) && x.isDelete == false, x => new WorkFlow_Model() { isDelete = true,DeleteTime = DateTime.Now });
+            if (b > 0) return Json(ApiResulthelp.Success(b));
+            return Json(ApiResulthelp.Error("删除失败"));
+        }
+
+        public async Task<IActionResult> QueryWorkFlowModelInfo(string Id)
+        {
+            var WorkFlowModel = await _iWorkFlow_ModelBll.Query(x => x.Id == Id && x.isDelete == false);
+            return Json(ApiResulthelp.Success(WorkFlowModel));
+        }
+
     }
 }

@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="utf-8">
+  <meta charset="utf-8">
     <title>菜单管理</title>
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -12,7 +12,7 @@
 <body>
 <div class="layuimini-container">
     <div class="layuimini-main">
-        <fieldset class="table-search-fieldset">
+           <fieldset class="table-search-fieldset">
             <legend>搜索信息</legend>
             <div style="margin: 10px 10px 10px 10px">
                 <form class="layui-form layui-form-pane" action="">
@@ -51,11 +51,58 @@
 <script>
     var tableIns;
     var Id;
+    var $;
+    var from;
+    var table;
 
     layui.use(['form', 'table'], function () {
-        var $ = layui.jquery,
-            form = layui.form,
+            $ = layui.jquery;
+            form = layui.form;
             table = layui.table;
+
+           $.ajax({
+            url:'/Login/IsAdmin',
+            type:'get',
+            success:function(res){
+                if(res.code === 200){
+                    initView(true);
+                }else{
+                    initView(false);
+                }
+            }
+        });
+       
+    });
+
+    function reLoadTable() {
+        tableIns.reload({
+            //where: { //设定异步数据接口的额外参数，任意设
+            //    aaaaaa: 'xxx'
+            //    , bbb: 'yyy'
+            //    //…
+            //}
+            page: {
+                curr: 1 //重新从第 1 页开始
+            }
+        });
+    }
+
+    function initView(isAdmin) {
+            var arr;
+            if (isAdmin) {
+                arr = [
+                [//表头
+                    { type: "checkbox", fixed: "left", width: 50 }, { field: "id", title: "Id" }, { field: "title", title: "菜单名称" }, { field: "description", title: "描述", sort: true }, { field: "level", title: "等级" }, { field: "sort", title: "排序", sort: true },{ field: "href", title: "链接", sort: true },{ field: "parentTitle", title: "父级部门", sort: true },{ field: "icon", title: "图标", sort: true }, { field: "target", title: "目标", sort: true },{ field: "createTime", title: "创建时间", sort: true },{ title: "操作", minWidth: 100, templet: "#currentTableBar", fixed: "right", align: "center" }
+                ]
+            ];
+            } else {
+                arr = [
+                [//表头
+                    { type: "checkbox", fixed: "left", width: 50 }, { field: "id", title: "Id" }, { field: "title", title: "菜单名称" }, { field: "description", title: "描述", sort: true }, { field: "level", title: "等级" }, { field: "sort", title: "排序", sort: true },{ field: "href", title: "链接", sort: true },{ field: "parentTitle", title: "父级部门", sort: true },{ field: "icon", title: "图标", sort: true }, { field: "target", title: "目标", sort: true },{ field: "createTime", title: "创建时间", sort: true }
+                ]
+            ];
+            }
+
 
         tableIns = table.render({
             elem: '#currentTableId',
@@ -93,18 +140,9 @@
                }
             });
 
-            ////执行搜索重载
-            //table.reload('currentTableId', {
-            //    page: {
-            //        curr: 1
-            //    }
-            //    , where: {
-            //        searchParams: result
-            //    }
-            //}, 'data');
-
             return false;
         });
+
 
         /**
          * toolbar监听事件
@@ -192,21 +230,8 @@
 
                         });
                 }
-                return false;
             });
-    });
-    function reLoadTable() {
-        tableIns.reload({
-            //where: { //设定异步数据接口的额外参数，任意设
-            //    aaaaaa: 'xxx'
-            //    , bbb: 'yyy'
-            //    //…
-            //}
-            page: {
-                curr: 1 //重新从第 1 页开始
-            }
-        });
-    }
+        };
 </script>
 
 </body>
