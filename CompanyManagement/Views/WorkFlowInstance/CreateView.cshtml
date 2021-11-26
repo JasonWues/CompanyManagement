@@ -68,14 +68,19 @@
 
 
         $.ajax({
-            url:'QueryWorkFlowModel',
+            url:'QuerySelectOption',
             type:'get',
             success:function(res){
-                if(res.data.length){
-                                for(var x = 0;x < res.data.length;x++){
-                                    $('#ModelSelect').append('<option value="'+res.data[x].id +'">' + res.data[x].title + '</option>')
+                if(res.workflowmodel.length){
+                                for(var x = 0;x < res.workflowmodel.length;x++){
+                                    $('#ModelSelect').append('<option value="'+res.workflowmodel[x].id +'">' + res.workflowmodel[x].title + '</option>')
                                 }
                             }
+                if(res.consumableInfo.length){
+                    for(var i = 0;i<res.consumableInfo.length;i++){
+                        $('#OutGoodsIdSelect').append('<option value="'+res.consumableInfo[i].id +'">' + res.consumableInfo[i].consumableName + '</option>')
+                    }
+                }
             }
         });
 

@@ -59,6 +59,7 @@ static void InitDB()
         context.Database.EnsureDeleted();
         //如果没有数据库则创建数据库
         context.Database.EnsureCreated();
+
         var userInfo = new UserInfo()
         {
             Id = Guid.NewGuid().ToString(),
@@ -202,8 +203,117 @@ static void InitDB()
             Level = 1,
             Sort = 1006,
             ParentId = parentMenu.Id
+        }, new MenuInfo()
+        {
+            Id = Guid.NewGuid().ToString(),
+            CreateTime = DateTime.Now,
+            Title = "耗材入库",
+            Href = "/ConsumableRecord/Index",
+            Icon = "fa fa-window-maximize",
+            Target = "_self",
+            Level = 0,
+            Sort = 21002,
+            ParentId = parentMenu.Id
+        }, new MenuInfo()
+        {
+            Id = Guid.NewGuid().ToString(),
+            CreateTime = DateTime.Now,
+            Title = "工作流模板",
+            Href = "/WorkFlowModel/Index",
+            Icon = "fa fa-window-maximize",
+            Target = "_self",
+            Level = 0,
+            Sort = 31000,
+            ParentId = parentMenu.Id
+        }, new MenuInfo()
+        {
+            Id = Guid.NewGuid().ToString(),
+            CreateTime = DateTime.Now,
+            Title = "申请流程",
+            Href = "/WorkFlowInstance/Index",
+            Icon = "fa fa-window-maximize",
+            Target = "_self",
+            Level = 0,
+            Sort = 31001,
+            ParentId = parentMenu.Id
+        }, new MenuInfo()
+        {
+            Id = Guid.NewGuid().ToString(),
+            CreateTime = DateTime.Now,
+            Title = "流程审批",
+            Href = "/WorkFlowInstanceStep/Index",
+            Icon = "fa fa-window-maximize",
+            Target = "_self",
+            Level = 0,
+            Sort = 31002,
+            ParentId = parentMenu.Id
         });
         #endregion
+
+        #region 初始化耗材相关信息
+        context.ConsumableInfo.AddRange(new ConsumableInfo
+        {
+            Id = Guid.NewGuid().ToString(),
+            CreateTime = DateTime.Now,
+            Name = "铅笔",
+            WarningNum = 10,
+            Money = 1,
+            Unit = "支",
+            Specification = "HB",
+            Description = "我是2B铅笔"
+        }, new ConsumableInfo
+        {
+            Id = Guid.NewGuid().ToString(),
+            CreateTime = DateTime.Now,
+            Name = "抽纸",
+            WarningNum = 10,
+            Money = 2,
+            Unit = "包",
+            Specification = "200抽",
+            Description = "我是抽纸"
+        }, new ConsumableInfo
+        {
+            Id = Guid.NewGuid().ToString(),
+            CreateTime = DateTime.Now,
+            Name = "黑色水性笔",
+            WarningNum = 10,
+            Money = 1,
+            Unit = "支",
+            Specification = "笔盖式",
+            Description = "我是黑色水性笔"
+        }, new ConsumableInfo
+        {
+            Id = Guid.NewGuid().ToString(),
+            CreateTime = DateTime.Now,
+            Name = "软抄笔记本",
+            WarningNum = 10,
+            Money = 3,
+            Unit = "本",
+            Specification = "100页",
+            Description = "我是软抄笔记本"
+        });
+        #endregion
+
+        #region 初始化类别相关信息
+        context.Category.AddRange(new Category()
+        {
+            Id = Guid.NewGuid().ToString(),
+            CategoryName = "日常用品"
+        },
+        new Category()
+        {
+            Id = Guid.NewGuid().ToString(),
+            CategoryName = "办公用品"
+        });
+        #endregion
+
+        context.WorkFlow_Models.AddRange(new WorkFlow_Model()
+        {
+            Id = Guid.NewGuid().ToString(),
+            Title = "申请耗材",
+            Description = "申请耗材流程",
+            CreateTime = DateTime.Now
+        });
 
         context.SaveChanges();
     }

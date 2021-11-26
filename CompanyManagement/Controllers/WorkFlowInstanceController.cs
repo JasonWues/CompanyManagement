@@ -2,6 +2,7 @@
 using ICompanyBll;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Utility.ApiResult;
 
 namespace CompanyManagement.Controllers
@@ -28,8 +29,35 @@ namespace CompanyManagement.Controllers
             return View();
         }
 
+        public async Task<IActionResult> Query(int page, int limit, int status)
+        {
+            (var list, var count) = await _iWorkFlow_InstanceBll.Query(page
+                , limit, status);
+
+            return Json(ApiResulthelp.Success(list, count));
+        }
+
         public async Task<IActionResult> Create(string modelId, string outGoodsId, int num, string description, string reason)
         {
+            var jsonUserInfo = HttpContext.Session.GetString("UserInfo");
+            UserInfo userInfo = JsonConvert.DeserializeObject<UserInfo>(jsonUserInfo);
+            if (userInfo == null)
+            {             
+                return Json(ApiResulthelp.Error("无登入信息"));
+            }
+            if (string.IsNullOrEmpty(modelId))
+            {
+                return Json(ApiResulthelp.Error("流程不能为空"));
+            }
+            if (string.IsNullOrEmpty(outGoodsId))
+            {
+                return Json(ApiResulthelp.Error("物品不能为空"));
+            }
+            if (string.IsNullOrEmpty(userInfo.DepartmentId))
+            {
+                return Json(ApiResulthelp.Error("当前用户没加入任何部门"));
+            }
+
             WorkFlow_Instance workFlow_Instance = new WorkFlow_Instance()
             {
                 Id = Guid.NewGuid().ToString(),
@@ -46,15 +74,25 @@ namespace CompanyManagement.Controllers
             return Json(ApiResulthelp.Error("错误"));
         }
 
-        public async Task<IActionResult> QueryWorkFlowModel()
+        public async Task<IActionResult> QuerySelectOption()
         {
-            var WorkFlowModel = await _iWorkFlow_ModelBll.QueryDb().Select(x => new
+            var workflowmodel = await _iWorkFlow_ModelBll.QueryDb().Select(x => new
             {
                 x.Id,
                 x.Title
             }).ToListAsync();
 
-            return Json(ApiResulthelp.Success(WorkFlowModel));
+            var consumableInfo = await _iConsumableInfoBll.QueryDb().Select(x => new
+            {
+                x.Id,
+                x.Name
+            }).ToListAsync();
+
+            return Json(new
+            {
+                workflowmodel,
+                consumableInfo
+            });
         }
     }
 }

@@ -14,6 +14,7 @@ namespace Entity
         public int ReviewStatus { get; set; }
         public DateTime ReviewTime { get; set; }
         [Column(TypeName = "varchar(36)")]
-        public string NextReviewerId { get; set; }
+        public string BeforeStepId { get; set; }
+        public DateTime CreateTime { get; set; }
     }
 }
