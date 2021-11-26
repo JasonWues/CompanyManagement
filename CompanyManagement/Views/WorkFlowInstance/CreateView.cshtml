@@ -66,6 +66,19 @@
             layer = layui.layer,
             $ = layui.$;
 
+
+        $.ajax({
+            url:'QueryWorkFlowModel',
+            type:'get',
+            success:function(res){
+                if(res.data.length){
+                                for(var x = 0;x < res.data.length;x++){
+                                    $('#ModelSelect').append('<option value="'+res.data[x].id +'">' + res.data[x].title + '</option>')
+                                }
+                            }
+            }
+        });
+
         //监听提交departmentinfo
         form.on('submit(saveBtn)', function (data) {
            console.log(data);

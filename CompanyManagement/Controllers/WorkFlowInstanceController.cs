@@ -1,6 +1,7 @@
 ﻿using Entity;
 using ICompanyBll;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Utility.ApiResult;
 
 namespace CompanyManagement.Controllers
@@ -8,9 +9,13 @@ namespace CompanyManagement.Controllers
     public class WorkFlowInstanceController : Controller
     {
         readonly IWorkFlow_InstanceBll _iWorkFlow_InstanceBll;
-        public WorkFlowInstanceController(IWorkFlow_InstanceBll iWorkFlow_InstanceBll)
+        readonly IWorkFlow_ModelBll _iWorkFlow_ModelBll;
+        readonly IConsumableInfoBll _iConsumableInfoBll;
+        public WorkFlowInstanceController(IWorkFlow_InstanceBll iWorkFlow_InstanceBll, IWorkFlow_ModelBll iWorkFlow_ModelBll, IConsumableInfoBll iConsumableInfoBll)
         {
             _iWorkFlow_InstanceBll = iWorkFlow_InstanceBll;
+            _iWorkFlow_ModelBll = iWorkFlow_ModelBll;
+            _iConsumableInfoBll = iConsumableInfoBll;
         }
 
         public IActionResult Index()
@@ -39,6 +44,17 @@ namespace CompanyManagement.Controllers
             var b = await _iWorkFlow_InstanceBll.Create(workFlow_Instance);
             if (b) return Json(ApiResulthelp.Success(b));
             return Json(ApiResulthelp.Error("错误"));
+        }
+
+        public async Task<IActionResult> QueryWorkFlowModel()
+        {
+            var WorkFlowModel = await _iWorkFlow_ModelBll.QueryDb().Select(x => new
+            {
+                x.Id,
+                x.Title
+            }).ToListAsync();
+
+            return Json(ApiResulthelp.Success(WorkFlowModel));
         }
     }
 }

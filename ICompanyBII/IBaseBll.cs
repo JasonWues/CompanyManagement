@@ -19,6 +19,7 @@ public interface IBaseBll<TEntity> where TEntity : class
     public Task<List<TEntity>> Query(Expression<Func<TEntity, bool>> func);
 
 
+
     /// <summary>
     /// 分页查询
     /// </summary>
