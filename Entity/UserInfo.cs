@@ -35,5 +35,5 @@ public class UserInfo : BaseId
     
     public DateTime? DeleteTime { get; set; }
 
-    public int isAdmin { get; set; }
+    public int IsAdmin { get; set; }
 }

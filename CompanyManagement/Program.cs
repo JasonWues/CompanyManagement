@@ -68,7 +68,7 @@ static void InitDB()
             Sex = 1,
             PassWord = MD5Encrypt16("123456"),
             CreateTime = DateTime.Now,
-            isAdmin = 1
+            IsAdmin = 1
         };
 
         context.UserInfo.AddRange(userInfo, new UserInfo()

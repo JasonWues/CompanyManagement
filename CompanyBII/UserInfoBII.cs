@@ -59,7 +59,7 @@ namespace CompanyBll
                             CreateTime = x.CreateTime.ToString("f"),
                             Sex = x.Sex.ConvertSex(),
                             DepartmentName = p.DepartmentName,
-                            isAdmin = x.isAdmin.ConvertYesOrNo()
+                            IsAdmin = x.IsAdmin.ConvertYesOrNo()
                         };
 
             count = query.Count();

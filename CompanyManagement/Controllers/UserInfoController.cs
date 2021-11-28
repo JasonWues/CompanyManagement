@@ -65,7 +65,7 @@ namespace CompanyManagement.Controllers
                 DepartmentId = departmentInfoId,
                 CreateTime = DateTime.Now,
                 IsDelete = false,
-                isAdmin = isAdmin
+                IsAdmin = isAdmin
             };
 
             var b = await _userInfoBll.Create(entity);

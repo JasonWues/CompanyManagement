@@ -126,7 +126,7 @@ namespace CompanyManagement.Controllers
             }
             else
             {
-                if (userInfo.isAdmin == 0)
+                if (userInfo.IsAdmin == 0)
                 {
                     return Json(ApiResulthelp.Error("当前账号不是管理员"));
                 }

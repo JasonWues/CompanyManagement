@@ -8,7 +8,7 @@ namespace Entity
         /// 工作流模板ID
         /// </summary>
         [Column(TypeName = "nvarchar(36)")]
-        public string ModelId { get; set; }
+        public string ModelId { get; set; } = null!;
         /// <summary>
         /// 状态
         /// </summary>
@@ -24,7 +24,7 @@ namespace Entity
         public DateTime CreateTime { get; set; }
 
         [Column(TypeName = "nvarchar(36)")]
-        public string Creator { get; set; }
+        public string Creator { get; set; } = null!;
         /// <summary>
         /// 出库数量
         /// </summary>
@@ -33,6 +33,6 @@ namespace Entity
         /// 出库物资Id
         /// </summary>
         [Column(TypeName = "varchar(36)")]
-        public string OutGoodsId { get; set; }
+        public string OutGoodsId { get; set; } = null!;
     }
 }

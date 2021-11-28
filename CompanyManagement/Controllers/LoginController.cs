@@ -52,7 +52,7 @@ public class LoginController : Controller
 
         if (userInfo != null)
         {
-            if(userInfo.isAdmin == 1)
+            if(userInfo.IsAdmin == 1)
             {
                 return Json(ApiResulthelp.Success("管理员"));
             }

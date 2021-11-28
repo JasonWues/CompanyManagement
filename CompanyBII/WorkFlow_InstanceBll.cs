@@ -14,7 +14,8 @@ namespace CompanyBll
         readonly IUserInfoDal _iUserInfoDal;
         readonly IDepartmentInfoDal _iDepartmentInfoDal;
         readonly IWorkFlow_InstanceStepDal _iWorkFlow_InstanceStepDal;
-        public WorkFlow_InstanceBll(IWorkFlow_InstanceDal iWorkFlow_InstanceDal, IWorkFlow_ModelDal iWorkFlow_ModelDall, IConsumableInfoDal iConsumableInfoDal, IUserInfoDal iUserInfoDal, IDepartmentInfoDal iDepartmentInfoDal, IWorkFlow_InstanceStepDal iWorkFlow_InstanceStepDal)
+        readonly CompanyContext _companyContext;
+        public WorkFlow_InstanceBll(IWorkFlow_InstanceDal iWorkFlow_InstanceDal, IWorkFlow_ModelDal iWorkFlow_ModelDall, IConsumableInfoDal iConsumableInfoDal, IUserInfoDal iUserInfoDal, IDepartmentInfoDal iDepartmentInfoDal, IWorkFlow_InstanceStepDal iWorkFlow_InstanceStepDal, CompanyContext companyContext)
         {
             _iBaseDal = iWorkFlow_InstanceDal;
             _iWorkFlow_ModelDal = iWorkFlow_ModelDall;
@@ -22,6 +23,7 @@ namespace CompanyBll
             _iUserInfoDal = iUserInfoDal;
             _iDepartmentInfoDal = iDepartmentInfoDal;
             _iWorkFlow_InstanceStepDal = iWorkFlow_InstanceStepDal;
+            _companyContext = companyContext;
         }
 
         public async Task<(List<UserInfo_ConsumableInfo_WorkFlowModel_WorkFlowInstanc> list, int count)> Query(int page, int limit, int status)
@@ -62,43 +64,43 @@ namespace CompanyBll
                                   CreateTime = DateTime.Now.ToString("g")
                               }).OrderBy(x => x.OutNum).Skip((page - 1) * limit).Take(limit).ToListAsync();
 
-            count = list.Count();
+            count = list.Count;
 
             return (list, count);
         }
 
         public async Task<bool> Create(WorkFlow_Instance entity, string departmentId)
         {
-            var leaderIds = await _iDepartmentInfoDal.QueryDb().Where(x => x.IsDelete == false && x.Id == departmentId).Select(x => x.LeaderId).ToListAsync();
+            var departmentInfo = await _iDepartmentInfoDal.QueryDb().Where(x => x.IsDelete == false).FirstOrDefaultAsync(x => x.Id == departmentId);
 
-            if (leaderIds.Count() == 0)
+            if (departmentInfo == null)
             {
                 return false;
             }
 
-            List<WorkFlow_InstanceStep> workFlow_InstanceSteps = new List<WorkFlow_InstanceStep>();
-
-            foreach (var item in leaderIds)
+            WorkFlow_InstanceStep workFlow_InstanceStep = new WorkFlow_InstanceStep()
             {
-                workFlow_InstanceSteps.Add(new WorkFlow_InstanceStep()
+                Id = Guid.NewGuid().ToString(),
+                CreateTime = DateTime.Now,
+                InstanceId = entity.Id,
+                ReviewerId = departmentInfo.LeaderId,
+                ReviewStatus = 1
+            };
+
+            using(var transaction = await _companyContext.Database.BeginTransactionAsync())
+            {
+                bool WorkFlow_InstanceIsSuccess = await _iBaseDal.Create(entity);
+                bool WorkFlow_InstanceStepIsSuccess = await _iWorkFlow_InstanceStepDal.Create(workFlow_InstanceStep);
+                if(WorkFlow_InstanceIsSuccess && WorkFlow_InstanceStepIsSuccess)
                 {
-                    Id = Guid.NewGuid().ToString(),
-                    CreateTime = DateTime.Now,
-                    InstanceId = entity.Id,
-                    ReviewerId = item,
-                    ReviewStatus = 1
-                });
-            }
-
-            if (workFlow_InstanceSteps.Count() > 0 && entity != null)
-            {
-                await _iWorkFlow_InstanceStepDal.BatchInsert(workFlow_InstanceSteps);
-                bool workFlow_InstanceisSuccess = await _iBaseDal.Create(entity);
-                return true;
-            }
-            else
-            {
-                return false;
+                    await transaction.CommitAsync();
+                    return true;
+                }
+                else
+                {
+                    await transaction.RollbackAsync();
+                    return false;
+                }
             }
 
         }

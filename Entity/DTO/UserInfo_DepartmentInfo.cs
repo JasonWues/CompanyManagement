@@ -20,6 +20,6 @@ namespace Entity.DTO
 
         public string CreateTime { get; set; } = null!;
 
-        public string? isAdmin { get; set; }
+        public string? IsAdmin { get; set; }
     }
 }

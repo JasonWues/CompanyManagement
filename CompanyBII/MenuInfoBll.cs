@@ -50,7 +50,7 @@ public class MenuInfoBll : BaseBll<MenuInfo>, IMenuInfoBll
 
         List<MainMenuInfo> menus = new List<MainMenuInfo>();
 
-        if (userInfo.isAdmin == 1 && isSuperAdmin)
+        if (userInfo.IsAdmin == 1 && isSuperAdmin)
         {
             //获取所有菜单集合信息
             menus = _iBaseDal.QueryDb().Where(x => x.IsDelete == false).OrderBy(x => x.Sort).Select(x => new MainMenuInfo

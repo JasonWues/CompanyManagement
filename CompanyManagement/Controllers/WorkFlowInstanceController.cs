@@ -58,7 +58,7 @@ namespace CompanyManagement.Controllers
                 return Json(ApiResulthelp.Error("当前用户没加入任何部门"));
             }
 
-            WorkFlow_Instance workFlow_Instance = new WorkFlow_Instance()
+            WorkFlow_Instance workFlow_Instance = new()
             {
                 Id = Guid.NewGuid().ToString(),
                 ModelId = modelId,
