@@ -37,7 +37,7 @@ public class LoginController : Controller
         {
             string jsonUserInfo = JsonConvert.SerializeObject(userinfo);
             HttpContext.Session.SetString("UserInfo", jsonUserInfo);
-            return Json(ApiResulthelp.Success("登入成功"));
+            return Json(ApiResulthelp.Success(userinfo.UserName));
         }
         else
         {

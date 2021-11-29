@@ -104,6 +104,7 @@
                type: 'post',
                success: function(res){
                    if(res.code === 200){
+                     sessionStorage.setItem('userName',res.data)
                      window.location = '/Home/Index';
                    }
                    else{
