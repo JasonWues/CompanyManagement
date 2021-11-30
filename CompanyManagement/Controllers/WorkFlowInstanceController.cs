@@ -74,6 +74,18 @@ namespace CompanyManagement.Controllers
             return Json(ApiResulthelp.Error("错误"));
         }
 
+        public async Task<IActionResult> CancelWorkFlowInstancel(string Id)
+        {
+            if(await _iWorkFlow_InstanceBll.Cancel(Id))
+            {
+                return Json(ApiResulthelp.Success(true));
+            }
+            else
+            {
+                return Json(ApiResulthelp.Error("错误"));
+            }
+        }
+
         public async Task<IActionResult> QuerySelectOption()
         {
             var workflowmodel = await _iWorkFlow_ModelBll.QueryDb().Select(x => new

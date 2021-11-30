@@ -128,6 +128,7 @@ public class ConsumableRecordBll : BaseBll<ConsumableRecord>, IConsumableRecordB
                         Num = int.Parse(worksheet.Cells[row, 2].Value.ToString()),
                         ConsumableId = consumableInfo.Id
                     });
+                    //consumableInfo.Num += int.Parse(worksheet.Cells[row, 2].Value.ToString());
                     await _iConsumableInfoDal.Update(x => x.Id == consumableInfo.Id, x => new ConsumableInfo { Num = x.Num + int.Parse(worksheet.Cells[row, 2].Value.ToString()) });
                 }
                 else

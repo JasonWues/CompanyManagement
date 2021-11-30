@@ -28,6 +28,10 @@
             {
                 return "作废";
             }
+            else if (status == 4)
+            {
+                return "取消";
+            }
             else
             {
                 return string.Empty;

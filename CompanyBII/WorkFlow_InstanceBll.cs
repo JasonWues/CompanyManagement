@@ -3,6 +3,7 @@ using Entity.DTO;
 using ICompanyBll;
 using ICompanyDal;
 using Microsoft.EntityFrameworkCore;
+using EFCore.BulkExtensions;
 using Utility.ExtendMethod;
 
 namespace CompanyBll
@@ -67,6 +68,41 @@ namespace CompanyBll
             count = list.Count;
 
             return (list, count);
+        }
+
+        public async Task<bool> Cancel(string Id)
+        {
+            WorkFlow_Instance workFlow_Instance = await _iBaseDal.Find(Id);
+
+            workFlow_Instance.Status = 4;
+
+            using (var transaction =  await _companyContext.Database.BeginTransactionAsync())
+            {
+                bool workFlowInstanceUpdateIsSuccess =  await _iBaseDal.Update(workFlow_Instance);
+
+                var step = await _iWorkFlow_InstanceStepDal.Query(x => x.InstanceId == Id);
+
+                foreach(var item in step)
+                {
+                    if(item.ReviewStatus == 1)
+                    {
+                        item.ReviewStatus = 4;
+                    }
+                }
+
+                bool workFlowInstanceStepUpdateIsSuccess = await _iWorkFlow_InstanceStepDal.QueryDb().BatchUpdateAsync(workFlow_Instance) > 0 ? true : false;
+
+                if (workFlowInstanceUpdateIsSuccess && workFlowInstanceStepUpdateIsSuccess)
+                {
+                    await transaction.CommitAsync();
+                    return true;
+                }
+                else
+                {
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+            }
         }
 
         public async Task<bool> Create(WorkFlow_Instance entity, string departmentId)

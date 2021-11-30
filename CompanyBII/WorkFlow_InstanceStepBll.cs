@@ -15,9 +15,10 @@ namespace CompanyBll
         readonly IRoleInfoDal _iRoleInfoDal;
         readonly IRUserInfo_RoleInfoDal _iRUserInfo_RoleInfoDal;
         readonly IConsumableInfoDal _iConsumableInfoDal;
+        readonly IDepartmentInfoDal _iDepartmentInfoDal;
         readonly CompanyContext _companyContext;
 
-        public WorkFlow_InstanceStepBll(IWorkFlow_InstanceStepDal iWorkFlow_InstanceStepDal, IWorkFlow_InstanceDal iWorkFlow_InstanceDal, IWorkFlow_ModelDal iWorkFlow_ModelDal, IUserInfoDal iUserInfoDal, IRoleInfoDal iRoleInfoDal, IRUserInfo_RoleInfoDal iRUserInfo_RoleInfoDal, IConsumableInfoDal iConsumableInfoDal, CompanyContext companyContext)
+        public WorkFlow_InstanceStepBll(IWorkFlow_InstanceStepDal iWorkFlow_InstanceStepDal, IWorkFlow_InstanceDal iWorkFlow_InstanceDal, IWorkFlow_ModelDal iWorkFlow_ModelDal, IUserInfoDal iUserInfoDal, IRoleInfoDal iRoleInfoDal, IRUserInfo_RoleInfoDal iRUserInfo_RoleInfoDal, IConsumableInfoDal iConsumableInfoDal, IDepartmentInfoDal iDepartmentInfoDal, CompanyContext companyContext)
         {
             _iBaseDal = iWorkFlow_InstanceStepDal;
             _iWorkFlow_InstanceDal = iWorkFlow_InstanceDal;
@@ -26,6 +27,7 @@ namespace CompanyBll
             _iRUserInfo_RoleInfoDal = iRUserInfo_RoleInfoDal;
             _iRoleInfoDal = iRoleInfoDal;
             _iConsumableInfoDal = iConsumableInfoDal;
+            _iDepartmentInfoDal = iDepartmentInfoDal;
             _companyContext = companyContext;
 
         }
@@ -55,6 +57,14 @@ namespace CompanyBll
                               on wis.ReviewerId equals u.Id into grouping2
                               from uw in grouping2.DefaultIfEmpty()
 
+                              join u2 in _iUserInfoDal.QueryDb().Where(x => x.IsDelete == false)
+                              on wiswi.Creator equals u2.Id into grouping3
+                              from uw2 in grouping3.DefaultIfEmpty()
+
+                              join c in _iConsumableInfoDal.QueryDb().Where(x => x.IsDelete == false)
+                              on wiswi.OutGoodsId equals c.Id into grouping4
+                              from cws in grouping4.DefaultIfEmpty()
+
                               select new WorkFlowInstanceSteps_WorkFlowModel_UserInfo()
                               {
                                   Id = wis.Id,
@@ -62,6 +72,8 @@ namespace CompanyBll
                                   Title = wm.Title,
                                   UserName = uw.UserName,
                                   ReviewReason = wis.ReviewReason,
+                                  CreatorName = uw2.UserName,
+                                  //OutInt = wiswi.OutNum,
                                   CreateTime = wis.CreateTime.ToString("g"),
                                   ReviewTime = wis.ReviewTime.ToString("g") == null ? "" : wis.ReviewTime.ToString("g")
                               }).OrderBy(x => x.ReviewStatus).Skip((page - 1) * limit).Take(limit).ToListAsync();
@@ -101,6 +113,7 @@ namespace CompanyBll
 
                     bool isStorehouseAdmin = userInfoIds.Any(x => x == workFlowInstanceStep.ReviewerId);
 
+
                     if (isStorehouseAdmin)
                     {
                         var workFlowInstance = await _iWorkFlow_InstanceDal.Find(workFlowInstanceStep.InstanceId);
@@ -138,8 +151,25 @@ namespace CompanyBll
                         }
 
                     }
-                    else if (true)
+                    else
                     {
+
+                        var leaderId = await (from wi in _iWorkFlow_InstanceDal.QueryDb().Where(x => x.Id == workFlowInstanceStep.InstanceId)
+                                              join u in _iUserInfoDal.QueryDb().Where(x => x.IsDelete == false)
+                                              on wi.Creator equals u.Id
+
+                                              join d in _iDepartmentInfoDal.QueryDb().Where(x => x.IsDelete == false)
+                                              on u.DepartmentId equals d.Id
+                                              select d.LeaderId).FirstOrDefaultAsync();
+
+                        if(string.IsNullOrEmpty(leaderId) || workFlowInstanceStep.ReviewerId != leaderId)
+                        {
+                            await transaction.RollbackAsync();
+                            return false;
+                        }
+
+
+
                         if (userInfoIds.Count == 0)
                         {
                             return false;

@@ -89,7 +89,7 @@ namespace CompanyManagement.Controllers
         {
             var currentMenuInfoTitle = _iMenuInfoBll.QueryDb().Where(x => x.Id == Id).ToList();
 
-            var menInfo = _iMenuInfoBll.QueryDb().Where(x => x.IsDelete == false && x.Id != Id).Select(x => new
+            var menInfo = _iMenuInfoBll.QueryDb().Where(x => x.IsDelete == false && x.Id != Id).OrderBy(x => x.Sort).Select(x => new
             {
                 x.Id,
                 x.Title
