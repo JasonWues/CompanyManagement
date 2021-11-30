@@ -73,7 +73,8 @@ namespace CompanyBll
                                   UserName = uw.UserName,
                                   ReviewReason = wis.ReviewReason,
                                   CreatorName = uw2.UserName,
-                                  //OutInt = wiswi.OutNum,
+                                  OutInt = wiswi.OutNum,
+                                  ConsumableName = cws.Name,
                                   CreateTime = wis.CreateTime.ToString("g"),
                                   ReviewTime = wis.ReviewTime.ToString("g") == null ? "" : wis.ReviewTime.ToString("g")
                               }).OrderBy(x => x.ReviewStatus).Skip((page - 1) * limit).Take(limit).ToListAsync();
@@ -168,8 +169,6 @@ namespace CompanyBll
                             return false;
                         }
 
-
-
                         if (userInfoIds.Count == 0)
                         {
                             return false;
@@ -211,21 +210,27 @@ namespace CompanyBll
 
                     WorkFlow_Instance workFlow_Instance = await _iWorkFlow_InstanceDal.Find(workFlowInstanceStep.InstanceId);
 
-                    if (workFlow_Instance.Status == 2)
+                    if (workFlow_Instance != null)
                     {
                         workFlow_Instance.Status = 3;
+                    }
+                    else
+                    {
+                        await transaction.RollbackAsync();
+                        return false;
                     }
                     bool workFlowInstanceUpdateIsSuccess = await _iWorkFlow_InstanceDal.Update(workFlow_Instance);
 
                     if(workFlowInstanceStepUpdateIsSuccess && workFlowInstanceUpdateIsSuccess)
                     {
-                        return true;
                         await transaction.CommitAsync();
+                        return true;
+
                     }
                     else
                     {
-                        return false;
                         await transaction.RollbackAsync();
+                        return false;
                     }
                 }       
             }

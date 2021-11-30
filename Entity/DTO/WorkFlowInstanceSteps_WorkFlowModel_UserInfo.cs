@@ -9,6 +9,8 @@ namespace Entity.DTO
 
         public int OutInt { get; set; }
         public string CreatorName { get; set; }
+
+        public string ConsumableName { get; set; }
         public string ReviewReason { get; set; }
         public string CreateTime { get; set; }
         public string ReviewStatus { get; set; }

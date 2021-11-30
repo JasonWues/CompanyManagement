@@ -22,15 +22,15 @@
             }
             else if (status == 2)
             {
-                return "结束";
+                return "通过";
             }
             else if (status == 3)
             {
-                return "作废";
+                return "驳回";
             }
             else if (status == 4)
             {
-                return "取消";
+                return "作废";
             }
             else
             {

@@ -18,9 +18,9 @@
                 <form class="layui-form layui-form-pane" action="">
                     <div class="layui-form-item">
                             <div class="layui-inline">
-                                <label class="layui-form-label">模板名</label>
+                                <label class="layui-form-label">审批状态</label>
                                 <div class="layui-input-inline">
-                                    <select name="ModelId" id="modelSelect">
+                                    <select name="reviewStatus" id="statusSelect">
                                         <option value=""></option>
                                     </select>
                                 </div>
@@ -43,7 +43,12 @@
         <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
 
         <script type="text/html" id="currentTableBar">
-            <a class="layui-btn layui-btn-normal layui-btn-xs data-count-edit" lay-event="review">审批</a>
+            
+            {{#  if(d.reviewStatus == '审批中'){ }}
+                <a class="layui-btn layui-btn-normal layui-btn-xs data-count-edit" lay-event="review">审批</a>
+                {{#  }else { }}
+                <a class="layui-btn layui-btn-normal layui-btn-disabled"">审批</a>
+            {{#  } }}
             @*<a class="layui-btn layui-btn-xs layui-btn-danger data-count-delete" lay-event="delete">删除</a>*@
         </script>
 
@@ -58,6 +63,19 @@
         var $ = layui.jquery,
             form = layui.form,
             table = layui.table;
+
+
+            $.ajax({
+                url:'QueryStatusSelectOption',
+                type:'get',
+                success:function(res){
+                    if(res.code === 200){
+                        for(var i = 0;i < res.data.length;i++){
+                                $('#statusSelect').append('<option value="'+res.data[i].value +'">' + res.data[i].key + '</option>')
+                            }
+                    }
+                }
+            })
 
         tableIns = table.render({
             elem: '#currentTableId',
@@ -75,8 +93,11 @@
                     { type: "checkbox", width: 50 },
                     { field: 'id', title: 'ID', hide: true, sort: true },
                     { field: 'title', minWidth: 150, title: '流程', sort: true },
+                    { field: 'consumableName', minWidth: 150, title: '申请物品', sort: true },
+                    { field: 'creatorName', minWidth: 150, title: '申请人', sort: true },
+                    { field: 'outNum', minWidth: 150, title: '申请数量', sort: true },
                     { field: 'userName', minWidth: 150, title: '审批人', sort: true },
-                    { field: 'reviewReason', minWidth: 150, title: '理由', sort: true },
+                    //{ field: 'reviewReason', minWidth: 150, title: '理由', sort: true },
                     { field: 'reviewTime', minWidth: 150, title: '审批时间', sort: true },
                     { field: 'reviewStatus', minWidth: 150, title: '状态', sort: true },
                     { field: 'createTime', title: '创建时间', sort: true },
@@ -92,7 +113,7 @@
         form.on('submit(data-search-btn)', function (data) {
             tableIns.reload({
                 where: { //设定异步数据接口的额外参数，任意设
-                    modelId: data.field.ModelId
+                    reviewStatus: data.field.reviewStatus
                 },
                 page: {
                         curr: 1 //重新从第 1 页开始

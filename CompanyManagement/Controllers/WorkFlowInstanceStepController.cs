@@ -62,5 +62,32 @@ namespace CompanyManagement.Controllers
             }
         }
 
+        public IActionResult QueryStatusSelectOption()
+        {
+            var statusList = new List<Object>();
+            statusList.Add(new
+            {
+                Key = "审批中",
+                Value = 1
+            });
+            statusList.Add(new
+            {
+                Key = "通过",
+                Value = 2
+            });
+            statusList.Add(new
+            {
+                Key = "驳回",
+                Value = 3
+            });
+            statusList.Add(new
+            {
+                Key = "作废",
+                Value = 4
+            });
+
+            return Json(ApiResulthelp.Success(statusList));
+        }
+
     }
 }
