@@ -76,13 +76,14 @@ namespace CompanyManagement.Controllers
 
         public async Task<IActionResult> CancelWorkFlowInstancel(string Id)
         {
-            if(await _iWorkFlow_InstanceBll.Cancel(Id))
+            (var isSuccess, var msg) = await _iWorkFlow_InstanceBll.Cancel(Id);
+            if (isSuccess)
             {
-                return Json(ApiResulthelp.Success(true));
+                return Json(ApiResulthelp.Success(msg));
             }
             else
             {
-                return Json(ApiResulthelp.Error("错误"));
+                return Json(ApiResulthelp.Error(msg));
             }
         }
 

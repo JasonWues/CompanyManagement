@@ -70,7 +70,7 @@ namespace CompanyBll
             return (list, count);
         }
 
-        public async Task<bool> Cancel(string Id)
+        public async Task<(bool isSuccess,string msg)> Cancel(string Id)
         {
             WorkFlow_Instance workFlow_Instance = await _iBaseDal.Find(Id);
 
@@ -95,12 +95,12 @@ namespace CompanyBll
                 if (workFlowInstanceUpdateIsSuccess && workFlowInstanceStepUpdateIsSuccess)
                 {
                     await transaction.CommitAsync();
-                    return true;
+                    return (true,"提交成功");
                 }
                 else
                 {
                     await transaction.RollbackAsync();
-                    return false;
+                    return (false, "提交失败");
                 }
             }
         }

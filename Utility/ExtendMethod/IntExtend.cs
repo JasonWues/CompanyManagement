@@ -31,6 +31,9 @@
             else if (status == 4)
             {
                 return "作废";
+            }else if(status == 5)
+            {
+                return "已审批";
             }
             else
             {

@@ -46,14 +46,14 @@ namespace CompanyManagement.Controllers
         {
             if(reviewStatus == 2 || reviewStatus == 3)
             {
-                bool ReviewIsSuccess = await _iWorkFlow_InstanceStepBll.Review(Id, reviewReason, reviewStatus);
-                if (ReviewIsSuccess)
+                (var isSuccess,var msg) = await _iWorkFlow_InstanceStepBll.Review(Id, reviewReason, reviewStatus);
+                if (isSuccess)
                 {
-                    return Json(ApiResulthelp.Success(reviewStatus));
+                    return Json(ApiResulthelp.Success(msg));
                 }
                 else
                 {
-                    return Json(ApiResulthelp.Error("失败"));
+                    return Json(ApiResulthelp.Error(msg));
                 }
             }
             else

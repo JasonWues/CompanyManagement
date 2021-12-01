@@ -3,6 +3,7 @@ using Entity.DTO;
 using ICompanyBll;
 using ICompanyDal;
 using Microsoft.EntityFrameworkCore;
+using EFCore.BulkExtensions;
 using Utility.ExtendMethod;
 
 namespace CompanyBll
@@ -85,7 +86,7 @@ namespace CompanyBll
 
         }
 
-        public async Task<bool> Review(string stepId, string reviewReason, int reviewStatus)
+        public async Task<(bool isSuccess, string msg)> Review(string stepId, string reviewReason, int reviewStatus)
         {
             var workFlowInstanceStep = await _iBaseDal.Find(stepId);
             List<WorkFlow_InstanceStep> workFlow_InstanceSteps = new List<WorkFlow_InstanceStep>();
@@ -93,13 +94,19 @@ namespace CompanyBll
             {
                 if (workFlowInstanceStep.ReviewStatus == 2 || workFlowInstanceStep.ReviewStatus == 3)
                 {
-                    return false;
+                    return (false, "该流程已结束");
                 }
 
                 workFlowInstanceStep.ReviewReason = reviewReason;
                 workFlowInstanceStep.ReviewStatus = reviewStatus;
                 workFlowInstanceStep.ReviewTime = DateTime.Now;
             }
+
+            if(reviewStatus == 2 || reviewStatus == 5)
+            {
+                return (false,"该流程已审批");
+            }
+
 
             if (reviewStatus == 2)
             {
@@ -115,16 +122,33 @@ namespace CompanyBll
                     bool isStorehouseAdmin = userInfoIds.Any(x => x == workFlowInstanceStep.ReviewerId);
 
 
+                    var workFlowInstance = await _iWorkFlow_InstanceDal.Find(workFlowInstanceStep.InstanceId);
+
+                    if (workFlowInstance != null)
+                    {
+                        return (false, "没有找到有效的流程");
+                    }
+
+
                     if (isStorehouseAdmin)
                     {
-                        var workFlowInstance = await _iWorkFlow_InstanceDal.Find(workFlowInstanceStep.InstanceId);
 
-                        if (workFlowInstance != null)
+                        var otherInstanceStep = await _iBaseDal.QueryDb().Where(x => userInfoIds.Contains(x.ReviewerId)).ToListAsync();
+                        List<WorkFlow_InstanceStep> otherWorkFlowIstanceStep = new List<WorkFlow_InstanceStep>();
+
+                        foreach (var instanceStepItem in otherInstanceStep)
                         {
-                            return false;
+                            if(instanceStepItem.ReviewerId != workFlowInstanceStep.ReviewerId)
+                            {
+                                instanceStepItem.ReviewStatus = 5;
+                                instanceStepItem.ReviewTime = DateTime.Now;
+                                otherWorkFlowIstanceStep.Add(instanceStepItem);
+                            }
                         }
 
                         workFlowInstance.Status = 2;
+
+                        await _iBaseDal.QueryDb().BatchUpdateAsync(workFlowInstanceStep);
 
                         bool workFlowInstanceUpdateIsSuccess = await _iWorkFlow_InstanceDal.Update(workFlowInstance);
 
@@ -133,7 +157,7 @@ namespace CompanyBll
                         if (consumableInfo.Num < workFlowInstance.OutNum)
                         {
                             await transaction.RollbackAsync();
-                            return false;
+                            return (false, "库存不足");
                         }
 
                         consumableInfo.Num -= workFlowInstance.OutNum;
@@ -143,12 +167,12 @@ namespace CompanyBll
                         if (consumableInfoUpdateIsSuccess && workFlowInstanceUpdateIsSuccess && workFlowInstanceStepUpdateIsSuccess)
                         {
                             await transaction.CommitAsync();
-                            return true;
+                            return (true, "提交成功");
                         }
                         else
                         {
                             await transaction.RollbackAsync();
-                            return false;
+                            return (false, "提交失败");
                         }
 
                     }
@@ -163,15 +187,15 @@ namespace CompanyBll
                                               on u.DepartmentId equals d.Id
                                               select d.LeaderId).FirstOrDefaultAsync();
 
-                        if(string.IsNullOrEmpty(leaderId) || workFlowInstanceStep.ReviewerId != leaderId)
+                        if (string.IsNullOrEmpty(leaderId) || workFlowInstanceStep.ReviewerId != leaderId)
                         {
                             await transaction.RollbackAsync();
-                            return false;
+                            return (true, "成功");
                         }
 
                         if (userInfoIds.Count == 0)
                         {
-                            return false;
+                            return (false, "所在部门无领导");
                         }
 
                         foreach (var item in userInfoIds)
@@ -192,12 +216,12 @@ namespace CompanyBll
                         {
                             await _iBaseDal.QueryDb().AddRangeAsync(workFlow_InstanceSteps);
                             await transaction.CommitAsync();
-                            return true;
+                            return (true, "成功");
                         }
                         else
                         {
                             await transaction.RollbackAsync();
-                            return false;
+                            return (false, "未设置仓库管理员");
                         }
                     }
                 }
@@ -217,26 +241,26 @@ namespace CompanyBll
                     else
                     {
                         await transaction.RollbackAsync();
-                        return false;
+                        return (false, "没有找到流程");
                     }
                     bool workFlowInstanceUpdateIsSuccess = await _iWorkFlow_InstanceDal.Update(workFlow_Instance);
 
-                    if(workFlowInstanceStepUpdateIsSuccess && workFlowInstanceUpdateIsSuccess)
+                    if (workFlowInstanceStepUpdateIsSuccess && workFlowInstanceUpdateIsSuccess)
                     {
                         await transaction.CommitAsync();
-                        return true;
+                        return (true, "提交成功");
 
                     }
                     else
                     {
                         await transaction.RollbackAsync();
-                        return false;
+                        return (false, "提交失败");
                     }
-                }       
+                }
             }
             else
             {
-                return false;
+                return (false, "状态错误");
             }
         }
     }
