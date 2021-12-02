@@ -4,8 +4,8 @@ using Entity;
 using ICompanyBll;
 using ICompanyDal;
 using Microsoft.EntityFrameworkCore;
-using System.Text;
 using System.Security.Cryptography;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 

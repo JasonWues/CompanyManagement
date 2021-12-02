@@ -4,7 +4,7 @@ using ICompanyDal;
 
 namespace CompanyBll
 {
-    public class R_UserInfo_RoleInfoBll : BaseBll<R_UserInfo_RoleInfo>,IR_UserInfo_RoleInfoBll
+    public class R_UserInfo_RoleInfoBll : BaseBll<R_UserInfo_RoleInfo>, IR_UserInfo_RoleInfoBll
     {
         public R_UserInfo_RoleInfoBll(IRUserInfo_RoleInfoDal iRuserInfo_RoleInfoDal)
         {

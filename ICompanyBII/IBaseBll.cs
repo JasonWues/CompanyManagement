@@ -74,6 +74,6 @@ public interface IBaseBll<TEntity> where TEntity : class
     public DbSet<TEntity> QueryDb();
 
     public Task<int> FakeDelete(Expression<Func<TEntity, bool>> func, Expression<Func<TEntity, TEntity>> updateFunc);
-    
+
     public Task BatchInsert(List<TEntity> entityList);
 }

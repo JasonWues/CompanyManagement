@@ -6,7 +6,7 @@ namespace CompanyManagement.Filter
     {
         public override void OnException(ExceptionContext context)
         {
-            
+
         }
     }
 }

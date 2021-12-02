@@ -31,8 +31,16 @@ namespace CompanyManagement.Controllers
 
         public async Task<IActionResult> Query(int page, int limit, int status)
         {
+            var jsonUserInfo = HttpContext.Session.GetString("UserInfo");
+            UserInfo userInfo = JsonConvert.DeserializeObject<UserInfo>(jsonUserInfo);
+
+            if (userInfo == null)
+            {
+                return Json(ApiResulthelp.Error("无登入信息"));
+            }
+
             (var list, var count) = await _iWorkFlow_InstanceBll.Query(page
-                , limit, status);
+                , limit, status, userInfo);
 
             return Json(ApiResulthelp.Success(list, count));
         }
@@ -42,7 +50,7 @@ namespace CompanyManagement.Controllers
             var jsonUserInfo = HttpContext.Session.GetString("UserInfo");
             UserInfo userInfo = JsonConvert.DeserializeObject<UserInfo>(jsonUserInfo);
             if (userInfo == null)
-            {             
+            {
                 return Json(ApiResulthelp.Error("无登入信息"));
             }
             if (string.IsNullOrEmpty(modelId))
@@ -76,7 +84,16 @@ namespace CompanyManagement.Controllers
 
         public async Task<IActionResult> CancelWorkFlowInstancel(string Id)
         {
-            (var isSuccess, var msg) = await _iWorkFlow_InstanceBll.Cancel(Id);
+
+            var jsonUserInfo = HttpContext.Session.GetString("UserInfo");
+            UserInfo userInfo = JsonConvert.DeserializeObject<UserInfo>(jsonUserInfo);
+
+            if (userInfo == null)
+            {
+                return Json(ApiResulthelp.Error("无登入信息"));
+            }
+
+            (var isSuccess, var msg) = await _iWorkFlow_InstanceBll.Cancel(Id, userInfo);
             if (isSuccess)
             {
                 return Json(ApiResulthelp.Success(msg));

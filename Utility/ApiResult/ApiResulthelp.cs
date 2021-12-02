@@ -2,7 +2,7 @@
 {
     public static class ApiResulthelp
     {
-        public static ApiResult Success(object data,int count =0)
+        public static ApiResult Success(object data, int count = 0)
         {
             return new ApiResult
             {

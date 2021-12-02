@@ -10,7 +10,7 @@ namespace CompanyManagement.Controllers;
 public class LoginController : Controller
 {
     private IUserInfoBll _iuserInfoBll;
-    
+
     public LoginController(IUserInfoBll iuserInfoBll)
     {
         _iuserInfoBll = iuserInfoBll;
@@ -19,9 +19,9 @@ public class LoginController : Controller
     {
         return View();
     }
-    
+
     [HttpPost]
-    public IActionResult LoginVali(string account,string password)
+    public IActionResult LoginVali(string account, string password)
     {
         if (string.IsNullOrEmpty(account))
         {
@@ -52,7 +52,7 @@ public class LoginController : Controller
 
         if (userInfo != null)
         {
-            if(userInfo.IsAdmin == 1)
+            if (userInfo.IsAdmin == 1)
             {
                 return Json(ApiResulthelp.Success("管理员"));
             }

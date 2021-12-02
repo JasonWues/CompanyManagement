@@ -3,7 +3,7 @@ using ICompanyDal;
 
 namespace CompanyDal;
 
-public class ConsumableRecordDal : BaseDal<ConsumableRecord>,IConsumableRecordDal
+public class ConsumableRecordDal : BaseDal<ConsumableRecord>, IConsumableRecordDal
 {
     readonly CompanyContext _companyContext;
     public ConsumableRecordDal(CompanyContext companyContext) : base(companyContext)

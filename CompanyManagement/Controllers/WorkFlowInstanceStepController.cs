@@ -1,7 +1,6 @@
 ﻿using Entity;
 using ICompanyBll;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Utility.ApiResult;
 
@@ -31,12 +30,12 @@ namespace CompanyManagement.Controllers
             string jsonUserInfo = HttpContext.Session.GetString("UserInfo");
             UserInfo userInfo = JsonConvert.DeserializeObject<UserInfo>(jsonUserInfo);
 
-            if(userInfo == null)
+            if (userInfo == null)
             {
                 return Json(ApiResulthelp.Error("无登录信息"));
             }
 
-            (var list, var count) = await _iWorkFlow_InstanceStepBll.Query(page, limit, reviewStatus,userInfo.Id);
+            (var list, var count) = await _iWorkFlow_InstanceStepBll.Query(page, limit, reviewStatus, userInfo);
 
             return Json(ApiResulthelp.Success(list, count));
         }
@@ -44,9 +43,12 @@ namespace CompanyManagement.Controllers
 
         public async Task<IActionResult> Review(string Id, string reviewReason, int reviewStatus)
         {
-            if(reviewStatus == 2 || reviewStatus == 3)
+            string jsonUserInfo = HttpContext.Session.GetString("UserInfo");
+            UserInfo userInfo = JsonConvert.DeserializeObject<UserInfo>(jsonUserInfo);
+
+            if (reviewStatus == 2 || reviewStatus == 3)
             {
-                (var isSuccess,var msg) = await _iWorkFlow_InstanceStepBll.Review(Id, reviewReason, reviewStatus);
+                (var isSuccess, var msg) = await _iWorkFlow_InstanceStepBll.Review(Id, reviewReason, reviewStatus, userInfo);
                 if (isSuccess)
                 {
                     return Json(ApiResulthelp.Success(msg));
@@ -64,27 +66,29 @@ namespace CompanyManagement.Controllers
 
         public IActionResult QueryStatusSelectOption()
         {
-            var statusList = new List<Object>();
-            statusList.Add(new
+            var statusList = new List<Object>
             {
-                Key = "审批中",
-                Value = 1
-            });
-            statusList.Add(new
-            {
-                Key = "通过",
-                Value = 2
-            });
-            statusList.Add(new
-            {
-                Key = "驳回",
-                Value = 3
-            });
-            statusList.Add(new
-            {
-                Key = "作废",
-                Value = 4
-            });
+                new
+                {
+                    Key = "审批中",
+                    Value = 1
+                },
+                new
+                {
+                    Key = "通过",
+                    Value = 2
+                },
+                new
+                {
+                    Key = "驳回",
+                    Value = 3
+                },
+                new
+                {
+                    Key = "作废",
+                    Value = 4
+                }
+            };
 
             return Json(ApiResulthelp.Success(statusList));
         }

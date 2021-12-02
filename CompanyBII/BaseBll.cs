@@ -1,7 +1,7 @@
 ﻿using ICompanyBll;
-using System.Linq.Expressions;
 using ICompanyDal;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace CompanyBll;
 
@@ -46,7 +46,7 @@ public class BaseBll<TEntity> : IBaseBll<TEntity> where TEntity : class
 
     public async Task<List<TEntity>> QueryPage(int page, int limit, Expression<Func<TEntity, bool>> func)
     {
-        return await _iBaseDal.QueryPage(page,limit,func);
+        return await _iBaseDal.QueryPage(page, limit, func);
     }
 
     public async Task<bool> Update(TEntity entity)
@@ -66,7 +66,7 @@ public class BaseBll<TEntity> : IBaseBll<TEntity> where TEntity : class
 
     public async Task BatchInsert(List<TEntity> entityList)
     {
-         await _iBaseDal.BatchInsert(entityList);
+        await _iBaseDal.BatchInsert(entityList);
     }
 
 

@@ -4,14 +4,14 @@ using ICompanyDal;
 
 namespace CompanyBll;
 
-public class CategoryBll : BaseBll<Category>,ICategoryBll
+public class CategoryBll : BaseBll<Category>, ICategoryBll
 {
     public CategoryBll(ICategoryDal iCategory)
     {
         _iBaseDal = iCategory;
     }
 
-    public async Task<(List<Category> list,int Count)> Query(string categoryName, int page, int limit)
+    public async Task<(List<Category> list, int Count)> Query(string categoryName, int page, int limit)
     {
         var categor = await _iBaseDal.Query();
         int count = 0;
@@ -24,7 +24,7 @@ public class CategoryBll : BaseBll<Category>,ICategoryBll
 
         count = categor.Count();
 
-        categor = categor.OrderBy(x => x.CategoryName).Skip((page-1) * 5).Take(limit).ToList();
+        categor = categor.OrderBy(x => x.CategoryName).Skip((page - 1) * 5).Take(limit).ToList();
 
         return (categor, count);
     }

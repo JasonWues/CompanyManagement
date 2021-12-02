@@ -1,5 +1,4 @@
 ﻿using Entity;
-using ICompanyBll;
 
 namespace ICompanyBll
 {

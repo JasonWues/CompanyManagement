@@ -1,9 +1,9 @@
-﻿using Entity;
+﻿using EFCore.BulkExtensions;
+using Entity;
 using Entity.DTO;
 using ICompanyBll;
 using ICompanyDal;
 using Microsoft.EntityFrameworkCore;
-using EFCore.BulkExtensions;
 using Utility.ExtendMethod;
 
 namespace CompanyBll
@@ -33,10 +33,15 @@ namespace CompanyBll
 
         }
 
-        public async Task<(List<WorkFlowInstanceSteps_WorkFlowModel_UserInfo> list, int count)> Query(int page, int limit, int reviewStatus, string userInfoId)
+        public async Task<(List<WorkFlowInstanceSteps_WorkFlowModel_UserInfo> list, int count)> Query(int page, int limit, int reviewStatus, UserInfo userInfo)
         {
+            var workFlowInstancesSteps = _iBaseDal.QueryDb().AsQueryable();
 
-            var workFlowInstancesSteps = _iBaseDal.QueryDb().Where(x => x.ReviewerId == userInfoId);
+            if (userInfo.IsAdmin != 1)
+            {
+                workFlowInstancesSteps = workFlowInstancesSteps.Where(x => x.ReviewerId == userInfo.Id);
+            }
+
             int count = 0;
 
             if (reviewStatus != 0)
@@ -77,7 +82,7 @@ namespace CompanyBll
                                   OutInt = wiswi.OutNum,
                                   ConsumableName = cws.Name,
                                   CreateTime = wis.CreateTime.ToString("g"),
-                                  ReviewTime = wis.ReviewTime.ToString("g") == null ? "" : wis.ReviewTime.ToString("g")
+                                  ReviewTime = wis.ReviewTime.ToString("g") ?? ""
                               }).OrderBy(x => x.ReviewStatus).Skip((page - 1) * limit).Take(limit).ToListAsync();
 
             count = list.Count;
@@ -86,10 +91,10 @@ namespace CompanyBll
 
         }
 
-        public async Task<(bool isSuccess, string msg)> Review(string stepId, string reviewReason, int reviewStatus)
+        public async Task<(bool isSuccess, string msg)> Review(string stepId, string reviewReason, int reviewStatus, UserInfo userInfo)
         {
             var workFlowInstanceStep = await _iBaseDal.Find(stepId);
-            List<WorkFlow_InstanceStep> workFlow_InstanceSteps = new List<WorkFlow_InstanceStep>();
+            List<WorkFlow_InstanceStep> workFlow_InstanceSteps = new();
             if (workFlowInstanceStep != null)
             {
                 if (workFlowInstanceStep.ReviewStatus == 2 || workFlowInstanceStep.ReviewStatus == 3)
@@ -102,9 +107,9 @@ namespace CompanyBll
                 workFlowInstanceStep.ReviewTime = DateTime.Now;
             }
 
-            if(reviewStatus == 2 || reviewStatus == 5)
+            if (reviewStatus == 2 || reviewStatus == 5)
             {
-                return (false,"该流程已审批");
+                return (false, "该流程已审批");
             }
 
 
@@ -133,12 +138,12 @@ namespace CompanyBll
                     if (isStorehouseAdmin)
                     {
 
-                        var otherInstanceStep = await _iBaseDal.QueryDb().Where(x => userInfoIds.Contains(x.ReviewerId)).ToListAsync();
-                        List<WorkFlow_InstanceStep> otherWorkFlowIstanceStep = new List<WorkFlow_InstanceStep>();
+                        var otherInstanceStep = await _iBaseDal.QueryDb().Where(x => userInfoIds.Contains(x.ReviewerId) && x.InstanceId == workFlowInstanceStep.InstanceId).ToListAsync();
+                        List<WorkFlow_InstanceStep> otherWorkFlowIstanceStep = new();
 
                         foreach (var instanceStepItem in otherInstanceStep)
                         {
-                            if(instanceStepItem.ReviewerId != workFlowInstanceStep.ReviewerId)
+                            if (instanceStepItem.ReviewerId != workFlowInstanceStep.ReviewerId)
                             {
                                 instanceStepItem.ReviewStatus = 5;
                                 instanceStepItem.ReviewTime = DateTime.Now;
@@ -186,6 +191,11 @@ namespace CompanyBll
                                               join d in _iDepartmentInfoDal.QueryDb().Where(x => x.IsDelete == false)
                                               on u.DepartmentId equals d.Id
                                               select d.LeaderId).FirstOrDefaultAsync();
+
+                        if (userInfo.Id != leaderId)
+                        {
+                            return (false, "不是领导");
+                        }
 
                         if (string.IsNullOrEmpty(leaderId) || workFlowInstanceStep.ReviewerId != leaderId)
                         {

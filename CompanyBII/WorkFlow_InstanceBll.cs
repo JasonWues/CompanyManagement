@@ -1,9 +1,9 @@
-﻿using Entity;
+﻿using EFCore.BulkExtensions;
+using Entity;
 using Entity.DTO;
 using ICompanyBll;
 using ICompanyDal;
 using Microsoft.EntityFrameworkCore;
-using EFCore.BulkExtensions;
 using Utility.ExtendMethod;
 
 namespace CompanyBll
@@ -27,9 +27,15 @@ namespace CompanyBll
             _companyContext = companyContext;
         }
 
-        public async Task<(List<UserInfo_ConsumableInfo_WorkFlowModel_WorkFlowInstanc> list, int count)> Query(int page, int limit, int status)
+        public async Task<(List<UserInfo_ConsumableInfo_WorkFlowModel_WorkFlowInstanc> list, int count)> Query(int page, int limit, int status, UserInfo userInfo)
         {
+
             var WorkFlowInstances = _iBaseDal.QueryDb().AsQueryable();
+
+            if (userInfo.IsAdmin != 1)
+            {
+                WorkFlowInstances = _iBaseDal.QueryDb().AsQueryable().Where(x => x.Creator == userInfo.Id);
+            }
 
             if (status != 0)
             {
@@ -70,21 +76,35 @@ namespace CompanyBll
             return (list, count);
         }
 
-        public async Task<(bool isSuccess,string msg)> Cancel(string Id)
+        public async Task<(bool isSuccess, string msg)> Cancel(string Id, UserInfo userInfo)
         {
             WorkFlow_Instance workFlow_Instance = await _iBaseDal.Find(Id);
 
+            if (userInfo.IsAdmin != 1)
+            {
+                if (workFlow_Instance.Creator == userInfo.Id)
+                {
+                    return (false, "不是本人流程");
+                }
+            }
+
+            if (workFlow_Instance == null)
+            {
+                return (false, "无实例信息");
+            }
+
+
             workFlow_Instance.Status = 4;
 
-            using (var transaction =  await _companyContext.Database.BeginTransactionAsync())
+            using (var transaction = await _companyContext.Database.BeginTransactionAsync())
             {
-                bool workFlowInstanceUpdateIsSuccess =  await _iBaseDal.Update(workFlow_Instance);
+                bool workFlowInstanceUpdateIsSuccess = await _iBaseDal.Update(workFlow_Instance);
 
                 var step = await _iWorkFlow_InstanceStepDal.Query(x => x.InstanceId == Id);
 
-                foreach(var item in step)
+                foreach (var item in step)
                 {
-                    if(item.ReviewStatus == 1)
+                    if (item.ReviewStatus == 1)
                     {
                         item.ReviewStatus = 4;
                     }
@@ -95,7 +115,7 @@ namespace CompanyBll
                 if (workFlowInstanceUpdateIsSuccess && workFlowInstanceStepUpdateIsSuccess)
                 {
                     await transaction.CommitAsync();
-                    return (true,"提交成功");
+                    return (true, "提交成功");
                 }
                 else
                 {
@@ -123,11 +143,11 @@ namespace CompanyBll
                 ReviewStatus = 1
             };
 
-            using(var transaction = await _companyContext.Database.BeginTransactionAsync())
+            using (var transaction = await _companyContext.Database.BeginTransactionAsync())
             {
                 bool WorkFlow_InstanceIsSuccess = await _iBaseDal.Create(entity);
                 bool WorkFlow_InstanceStepIsSuccess = await _iWorkFlow_InstanceStepDal.Create(workFlow_InstanceStep);
-                if(WorkFlow_InstanceIsSuccess && WorkFlow_InstanceStepIsSuccess)
+                if (WorkFlow_InstanceIsSuccess && WorkFlow_InstanceStepIsSuccess)
                 {
                     await transaction.CommitAsync();
                     return true;

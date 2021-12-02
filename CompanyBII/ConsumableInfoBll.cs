@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CompanyBll;
 
-public class ConsumableInfoBll : BaseBll<ConsumableInfo>,IConsumableInfoBll
+public class ConsumableInfoBll : BaseBll<ConsumableInfo>, IConsumableInfoBll
 {
     readonly ICategoryDal _iCategoryDal;
     public ConsumableInfoBll(IConsumableInfoDal iConsumableInfoDal, ICategoryDal iCategoryDal)
@@ -45,7 +45,7 @@ public class ConsumableInfoBll : BaseBll<ConsumableInfo>,IConsumableInfoBll
                     };
         count = query.Count();
 
-        query = query.OrderBy(x => x.Name).Skip((page -1) * limit).Take(limit);
+        query = query.OrderBy(x => x.Name).Skip((page - 1) * limit).Take(limit);
 
         return (await query.ToListAsync(), count);
 

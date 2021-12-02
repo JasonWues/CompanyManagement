@@ -8,7 +8,7 @@ namespace Entity
         [Column(TypeName = "nvarchar(16)")]
         [Required]
         public string DepartmentName { get; set; } = null!;
-        
+
         [Column(TypeName = "nvarchar(32)")]
         public string? Description { get; set; }
 

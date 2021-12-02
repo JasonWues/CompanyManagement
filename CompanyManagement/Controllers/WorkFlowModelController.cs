@@ -45,7 +45,7 @@ namespace CompanyManagement.Controllers
 
         public async Task<IActionResult> Create(string title, string description)
         {
-            if(title == null)
+            if (title == null)
             {
                 return Json(ApiResulthelp.Error("标题不能为空"));
             }
@@ -72,7 +72,7 @@ namespace CompanyManagement.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(List<string> Id)
         {
-            int b = await _iWorkFlow_ModelBll.FakeDelete(x => Id.Contains(x.Id) && x.isDelete == false, x => new WorkFlow_Model() { isDelete = true,DeleteTime = DateTime.Now });
+            int b = await _iWorkFlow_ModelBll.FakeDelete(x => Id.Contains(x.Id) && x.isDelete == false, x => new WorkFlow_Model() { isDelete = true, DeleteTime = DateTime.Now });
             if (b > 0) return Json(ApiResulthelp.Success(b));
             return Json(ApiResulthelp.Error("删除失败"));
         }

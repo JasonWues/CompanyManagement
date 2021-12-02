@@ -12,7 +12,7 @@ public interface IBaseDal<TEntity> where TEntity : class
 
     public Task<List<TEntity>> QueryPage(int page, int limit);
 
-    public Task<List<TEntity>> QueryPage(int page, int limit,Expression<Func<TEntity,bool>> func);
+    public Task<List<TEntity>> QueryPage(int page, int limit, Expression<Func<TEntity, bool>> func);
 
     public Task<bool> Create(TEntity entity);
 
@@ -28,7 +28,7 @@ public interface IBaseDal<TEntity> where TEntity : class
 
     public DbSet<TEntity> QueryDb();
 
-    public Task<int> FakeDelete(Expression<Func<TEntity, bool>>func, Expression<Func<TEntity, TEntity>> updateFunc);
+    public Task<int> FakeDelete(Expression<Func<TEntity, bool>> func, Expression<Func<TEntity, TEntity>> updateFunc);
 
     public Task BatchInsert(List<TEntity> entityList);
 

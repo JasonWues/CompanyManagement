@@ -21,21 +21,21 @@ public class ConsumableRecordBll : BaseBll<ConsumableRecord>, IConsumableRecordB
     public async Task<Stream> DownLoad()
     {
         var query = await (from x in _iBaseDal.QueryDb().AsQueryable()
-                     join c in _iConsumableInfoDal.QueryDb().Where(x => x.IsDelete == false)
-                     on x.ConsumableId equals c.Id
-                     select new
-                     {
-                         x.Num,
-                         c.Name,
-                         CreateTime =  x.CreateTime.ToString("g"),
-                         Type =  x.Type == 1 ? "入库" : "出库"
-                     }).ToListAsync();
+                           join c in _iConsumableInfoDal.QueryDb().Where(x => x.IsDelete == false)
+                           on x.ConsumableId equals c.Id
+                           select new
+                           {
+                               x.Num,
+                               c.Name,
+                               CreateTime = x.CreateTime.ToString("g"),
+                               Type = x.Type == 1 ? "入库" : "出库"
+                           }).ToListAsync();
 
         var currentPath = Directory.GetCurrentDirectory();
         var fileName = "output.xlsx";
         var filePath = Path.Combine(currentPath, fileName);
 
-        FileStream fileStream = new FileStream(filePath,FileMode.Create,FileAccess.ReadWrite);
+        FileStream fileStream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite);
 
         fileStream.Dispose();
 

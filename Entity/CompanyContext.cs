@@ -24,7 +24,7 @@ namespace Entity
         public DbSet<UserInfo> UserInfo { get; set; }
         public DbSet<RoleInfo> RoleInfo { get; set; }
         public DbSet<R_UserInfo_RoleInfo> RUserInfoRoleInfo { get; set; }
-        public DbSet<DepartmentInfo> DepartmentInfo { get; set; } 
+        public DbSet<DepartmentInfo> DepartmentInfo { get; set; }
         public DbSet<MenuInfo> MenuInfo { get; set; }
         public DbSet<R_RoleInfo_MenuInfo> RRoleInfoMenuInfo { get; set; }
         public DbSet<Category> Category { get; set; }

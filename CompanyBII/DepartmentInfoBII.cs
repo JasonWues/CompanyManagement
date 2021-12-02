@@ -33,7 +33,7 @@ namespace CompanyBll
                 departmentInfo = _iBaseDal.QueryDb().Where(x => x.DepartmentName.Contains(departmentName) && x.IsDelete == false);
                 count = departmentInfo.Count();
             }
-            
+
             var userinfo = _userInfoDal.QueryDb();
 
             var query = from x in departmentInfo
@@ -49,7 +49,7 @@ namespace CompanyBll
                             DepartmentName = x.DepartmentName,
                             LeaderName = p.Account,
                             ParentName = k.DepartmentName,
-                            CreateTime = x.CreateTime.ToString("f"), 
+                            CreateTime = x.CreateTime.ToString("f"),
                         };
 
             count = query.Count();
@@ -59,7 +59,7 @@ namespace CompanyBll
             return (await query.ToListAsync(), count);
         }
 
-        public async Task<bool> Update(string Id, string departmentName, string leaderId, string parentId,string description)
+        public async Task<bool> Update(string Id, string departmentName, string leaderId, string parentId, string description)
         {
             DepartmentInfo departmentInfo = await _iBaseDal.Find(Id);
             departmentInfo.DepartmentName = departmentName;

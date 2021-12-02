@@ -1,5 +1,4 @@
-﻿using CompanyManagement.Filter;
-using Entity;
+﻿using Entity;
 using ICompanyBll;
 using Microsoft.AspNetCore.Mvc;
 using Utility;
@@ -33,7 +32,7 @@ namespace CompanyManagement.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(string account, string userName, string phoneNum, string email, int sex,int isAdmin,string passWord, string departmentInfoId)
+        public async Task<IActionResult> Create(string account, string userName, string phoneNum, string email, int sex, int isAdmin, string passWord, string departmentInfoId)
         {
             if (string.IsNullOrEmpty(account))
             {

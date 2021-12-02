@@ -3,7 +3,7 @@ using ICompanyDal;
 
 namespace CompanyDal
 {
-    public class UserInfoDal : BaseDal<UserInfo>,IUserInfoDal
+    public class UserInfoDal : BaseDal<UserInfo>, IUserInfoDal
     {
         readonly CompanyContext _companyContext;
 
@@ -11,6 +11,6 @@ namespace CompanyDal
         {
             _companyContext = companyContext;
 
-        } 
+        }
     }
 }

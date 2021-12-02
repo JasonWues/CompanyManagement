@@ -4,5 +4,5 @@ namespace ICompanyDal;
 
 public interface IConsumableInfoDal : IBaseDal<ConsumableInfo>
 {
-    
+
 }

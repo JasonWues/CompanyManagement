@@ -10,7 +10,7 @@ public class ConsumableInfoController : Controller
     readonly IConsumableInfoBll _iConsumableInfoBll;
     readonly ICategoryBll _iCategoryBll;
     readonly IConsumableRecordBll _iConsumableRecordBll;
-    public ConsumableInfoController(IConsumableInfoBll iConsumableInfoBll,ICategoryBll iCategoryBll, IConsumableRecordBll iConsumableRecordBll)
+    public ConsumableInfoController(IConsumableInfoBll iConsumableInfoBll, ICategoryBll iCategoryBll, IConsumableRecordBll iConsumableRecordBll)
     {
         _iConsumableInfoBll = iConsumableInfoBll;
         _iCategoryBll = iCategoryBll;
@@ -20,10 +20,10 @@ public class ConsumableInfoController : Controller
     {
         return View();
     }
-    
+
     public async Task<IActionResult> Query(string name, int page, int limit)
     {
-        var(list,count) = await _iConsumableInfoBll.Query(name, page, limit);
+        var (list, count) = await _iConsumableInfoBll.Query(name, page, limit);
         return Json(ApiResulthelp.Success(list, count));
     }
 
@@ -42,7 +42,7 @@ public class ConsumableInfoController : Controller
         return Json(ApiResulthelp.Success(await _iCategoryBll.Query()));
     }
 
-    public async Task<IActionResult> Create(string description,string name,string categoryId, string specification,string unit,decimal money)
+    public async Task<IActionResult> Create(string description, string name, string categoryId, string specification, string unit, decimal money)
     {
         ConsumableInfo consumableInfo = new ConsumableInfo();
         consumableInfo.Id = Guid.NewGuid().ToString();
@@ -60,7 +60,7 @@ public class ConsumableInfoController : Controller
             return Json(ApiResulthelp.Error("耗材已存在"));
         }
 
-        var b =  await _iConsumableInfoBll.Create(consumableInfo);
+        var b = await _iConsumableInfoBll.Create(consumableInfo);
         if (b) return Json(ApiResulthelp.Success(b));
         return Json(ApiResulthelp.Error("添加失败"));
 
@@ -70,7 +70,7 @@ public class ConsumableInfoController : Controller
     {
         var bindNum = _iConsumableRecordBll.QueryDb().Where(x => Id.Contains(x.ConsumableId)).Count();
 
-        if(bindNum > 0)
+        if (bindNum > 0)
         {
             return Json(ApiResulthelp.Error("该数据已绑定"));
         }

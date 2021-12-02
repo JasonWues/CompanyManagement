@@ -1,6 +1,5 @@
 ﻿using Entity;
 using ICompanyBll;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -83,7 +82,7 @@ namespace CompanyManagement.Controllers
             var userInfoJson = HttpContext.Session.GetString("UserInfo");
             UserInfo userInfo = JsonConvert.DeserializeObject<UserInfo>(userInfoJson);
             var stream = excelFiles.OpenReadStream();
-            (var isAdd,string msg) = await _iConsumableRecordBll.UpLoad(stream, userInfo.Id);
+            (var isAdd, string msg) = await _iConsumableRecordBll.UpLoad(stream, userInfo.Id);
             if (isAdd) return Json(ApiResulthelp.Success(isAdd));
             return Json(ApiResulthelp.Error(msg));
         }
@@ -103,7 +102,7 @@ namespace CompanyManagement.Controllers
             {
                 x += await _iConsumableRecordBll.Delete(id) ? 1 : 0;
             }
-            if(x > 0)return Json(ApiResulthelp.Success(true));
+            if (x > 0) return Json(ApiResulthelp.Success(true));
             return Json(ApiResulthelp.Error("删除失败"));
         }
     }

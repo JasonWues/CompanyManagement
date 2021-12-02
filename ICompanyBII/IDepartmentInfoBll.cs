@@ -5,7 +5,7 @@ namespace ICompanyBll
 {
     public interface IDepartmentInfoBll : IBaseBll<DepartmentInfo>
     {
-        public Task<bool> Update(string Id, string departmentName, string leaderId,string parentId,string description);
+        public Task<bool> Update(string Id, string departmentName, string leaderId, string parentId, string description);
 
         public Task<bool> FakeDelete(string Id);
 
