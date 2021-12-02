@@ -7,7 +7,7 @@ namespace Entity
         [Column(TypeName = "nvarchar(32)")]
         public string Title { get; set; }
         public DateTime CreateTime { get; set; }
-        public bool isDelete { get; set; }
+        public bool IsDelete { get; set; }
         public DateTime DeleteTime { get; set; }
         [Column(TypeName = "varchar(64)")]
         public string? Description { get; set; }

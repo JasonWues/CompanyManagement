@@ -8,6 +8,6 @@ namespace Entity.DTO
         public string Icon { get; set; }
         public string Href { get; set; }
         public string Target { get; set; }
-        public List<ParentMenuInfo> child { get; set; }
+        public List<ParentMenuInfo> Child { get; set; }
     }
 }

@@ -55,7 +55,7 @@ namespace CompanyManagement.Controllers
                 Title = title,
                 Description = description,
                 CreateTime = DateTime.Now,
-                isDelete = false
+                IsDelete = false
             };
 
             var b = await _iWorkFlow_ModelBll.Create(workFlow_Model);
@@ -72,14 +72,14 @@ namespace CompanyManagement.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(List<string> Id)
         {
-            int b = await _iWorkFlow_ModelBll.FakeDelete(x => Id.Contains(x.Id) && x.isDelete == false, x => new WorkFlow_Model() { isDelete = true, DeleteTime = DateTime.Now });
+            int b = await _iWorkFlow_ModelBll.FakeDelete(x => Id.Contains(x.Id) && x.IsDelete == false, x => new WorkFlow_Model() { IsDelete = true, DeleteTime = DateTime.Now });
             if (b > 0) return Json(ApiResulthelp.Success(b));
             return Json(ApiResulthelp.Error("删除失败"));
         }
 
         public async Task<IActionResult> QueryWorkFlowModelInfo(string Id)
         {
-            var WorkFlowModel = await _iWorkFlow_ModelBll.Query(x => x.Id == Id && x.isDelete == false);
+            var WorkFlowModel = await _iWorkFlow_ModelBll.Query(x => x.Id == Id && x.IsDelete == false);
             return Json(ApiResulthelp.Success(WorkFlowModel));
         }
 

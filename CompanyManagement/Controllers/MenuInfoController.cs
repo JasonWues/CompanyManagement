@@ -44,7 +44,7 @@ namespace CompanyManagement.Controllers
                         Icon = "fa fa-address-book",
                         Href = "",
                         Target = "_self",
-                        child = await _iMenuInfoBll.GetMenuInfoJson(userInfo)
+                        Child = await _iMenuInfoBll.GetMenuInfoJson(userInfo)
                     }
                 }
             });

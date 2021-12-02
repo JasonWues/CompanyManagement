@@ -56,7 +56,7 @@ namespace CompanyBll
                               on wis.InstanceId equals wi.Id into grouping
                               from wiswi in grouping.DefaultIfEmpty()
 
-                              join wm in _iWorkFlow_ModelDal.QueryDb().Where(x => x.isDelete == false)
+                              join wm in _iWorkFlow_ModelDal.QueryDb().Where(x => x.IsDelete == false)
                               on wiswi.ModelId equals wm.Id
 
                               join u in _iUserInfoDal.QueryDb().Where(x => x.IsDelete == false)
@@ -93,6 +93,7 @@ namespace CompanyBll
 
         public async Task<(bool isSuccess, string msg)> Review(string stepId, string reviewReason, int reviewStatus, UserInfo userInfo)
         {
+            //获取步骤实体
             var workFlowInstanceStep = await _iBaseDal.Find(stepId);
             List<WorkFlow_InstanceStep> workFlow_InstanceSteps = new();
             if (workFlowInstanceStep != null)
@@ -107,37 +108,40 @@ namespace CompanyBll
                 workFlowInstanceStep.ReviewTime = DateTime.Now;
             }
 
+
+            //获取流程实例
+            var workFlowInstance = await _iWorkFlow_InstanceDal.Find(workFlowInstanceStep.InstanceId);
+
+            if (workFlowInstance != null)
+            {
+                return (false, "没有找到有效的流程");
+            }
+
             if (reviewStatus == 2 || reviewStatus == 5)
             {
                 return (false, "该流程已审批");
             }
 
 
+            //查询仓库管理员
+            var userInfoIds = await (from ur in _iRUserInfo_RoleInfoDal.QueryDb()
+                                     join r in _iRoleInfoDal.QueryDb().Where(x => x.IsDelete == false && x.RoleName == "仓库管理员")
+                                     on ur.RoleId equals r.Id
+                                     select ur.UserId).ToListAsync();
+
+
+            bool isStorehouseAdmin = userInfoIds.Any(x => x == workFlowInstanceStep.ReviewerId);
+
+
             if (reviewStatus == 2)
             {
                 using (var transaction = await _companyContext.Database.BeginTransactionAsync())
                 {
-                    bool workFlowInstanceStepUpdateIsSuccess = await _iBaseDal.Update(workFlowInstanceStep);
-
-                    var userInfoIds = await (from ur in _iRUserInfo_RoleInfoDal.QueryDb()
-                                             join r in _iRoleInfoDal.QueryDb().Where(x => x.IsDelete == false && x.RoleName == "仓库管理员")
-                                             on ur.RoleId equals r.Id
-                                             select ur.UserId).ToListAsync();
-
-                    bool isStorehouseAdmin = userInfoIds.Any(x => x == workFlowInstanceStep.ReviewerId);
-
-
-                    var workFlowInstance = await _iWorkFlow_InstanceDal.Find(workFlowInstanceStep.InstanceId);
-
-                    if (workFlowInstance != null)
-                    {
-                        return (false, "没有找到有效的流程");
-                    }
-
 
                     if (isStorehouseAdmin)
                     {
 
+                        // 查询到其他仓库管理员的流程审批步骤
                         var otherInstanceStep = await _iBaseDal.QueryDb().Where(x => userInfoIds.Contains(x.ReviewerId) && x.InstanceId == workFlowInstanceStep.InstanceId).ToListAsync();
                         List<WorkFlow_InstanceStep> otherWorkFlowIstanceStep = new();
 
@@ -151,9 +155,11 @@ namespace CompanyBll
                             }
                         }
 
+                        otherInstanceStep.Add(workFlowInstanceStep);
+
                         workFlowInstance.Status = 2;
 
-                        await _iBaseDal.QueryDb().BatchUpdateAsync(workFlowInstanceStep);
+                        bool workFlowInstanceStepUpdateIsSuccess = await _iBaseDal.QueryDb().BatchUpdateAsync(otherInstanceStep) > 0;
 
                         bool workFlowInstanceUpdateIsSuccess = await _iWorkFlow_InstanceDal.Update(workFlowInstance);
 
@@ -181,9 +187,12 @@ namespace CompanyBll
                         }
 
                     }
-                    else
+                    else//当是领导时
                     {
 
+                        bool workFlowInstanceStepUpdateIsSuccess = await _iBaseDal.Update(workFlowInstanceStep);
+
+                        //查询申请人的部门领导id
                         var leaderId = await (from wi in _iWorkFlow_InstanceDal.QueryDb().Where(x => x.Id == workFlowInstanceStep.InstanceId)
                                               join u in _iUserInfoDal.QueryDb().Where(x => x.IsDelete == false)
                                               on wi.Creator equals u.Id
@@ -205,7 +214,7 @@ namespace CompanyBll
 
                         if (userInfoIds.Count == 0)
                         {
-                            return (false, "所在部门无领导");
+                            return (false, "为选择仓库管理员");
                         }
 
                         foreach (var item in userInfoIds)
@@ -221,50 +230,70 @@ namespace CompanyBll
                             });
                         }
 
+                        await _iBaseDal.BatchInsert(workFlow_InstanceSteps);
 
-                        if (workFlowInstanceStepUpdateIsSuccess && workFlow_InstanceSteps.Count > 0)
+                        if (workFlow_InstanceSteps.Count > 0 && workFlowInstanceStepUpdateIsSuccess)
                         {
-                            await _iBaseDal.QueryDb().AddRangeAsync(workFlow_InstanceSteps);
+
                             await transaction.CommitAsync();
                             return (true, "成功");
                         }
                         else
                         {
                             await transaction.RollbackAsync();
-                            return (false, "未设置仓库管理员");
+                            return (false, "提交失败");
                         }
                     }
                 }
             }
             else if (reviewStatus == 3)
             {
+
+                bool workFlowInstanceStepUpdateIsSuccess = false;
+                bool workFlowInstanceUpdateIsSuccess = true;
+                if (isStorehouseAdmin)
+                {
+
+                    // 查询到其他仓库管理员的流程审批步骤
+                    var otherInstanceStep = await _iBaseDal.QueryDb().Where(x => userInfoIds.Contains(x.ReviewerId) && x.InstanceId == workFlowInstanceStep.InstanceId).ToListAsync();
+                    List<WorkFlow_InstanceStep> otherWorkFlowIstanceStep = new();
+
+                    foreach (var instanceStepItem in otherInstanceStep)
+                    {
+                        if (instanceStepItem.ReviewerId != workFlowInstanceStep.ReviewerId)
+                        {
+                            instanceStepItem.ReviewStatus = 5;
+                            instanceStepItem.ReviewTime = DateTime.Now;
+                            otherWorkFlowIstanceStep.Add(instanceStepItem);
+                        }
+                    }
+
+                    otherInstanceStep.Add(workFlowInstanceStep);
+
+                    workFlowInstance.Status = 2;
+
+                    workFlowInstanceStepUpdateIsSuccess = await _iBaseDal.QueryDb().BatchUpdateAsync(otherInstanceStep) > 0;
+
+                    workFlowInstanceUpdateIsSuccess = await _iWorkFlow_InstanceDal.Update(workFlowInstance);
+                }
+                else//领导驳回
+                {
+                    workFlowInstanceStepUpdateIsSuccess = await _iBaseDal.Update(workFlowInstanceStep);
+                    workFlowInstance.Status = 2;
+                    workFlowInstanceUpdateIsSuccess = await _iWorkFlow_InstanceDal.Update(workFlowInstance);
+                }
+
                 using (var transaction = await _companyContext.Database.BeginTransactionAsync())
                 {
-                    bool workFlowInstanceStepUpdateIsSuccess = await _iBaseDal.Update(workFlowInstanceStep);
-
-                    WorkFlow_Instance workFlow_Instance = await _iWorkFlow_InstanceDal.Find(workFlowInstanceStep.InstanceId);
-
-                    if (workFlow_Instance != null)
-                    {
-                        workFlow_Instance.Status = 3;
-                    }
-                    else
-                    {
-                        await transaction.RollbackAsync();
-                        return (false, "没有找到流程");
-                    }
-                    bool workFlowInstanceUpdateIsSuccess = await _iWorkFlow_InstanceDal.Update(workFlow_Instance);
-
                     if (workFlowInstanceStepUpdateIsSuccess && workFlowInstanceUpdateIsSuccess)
                     {
-                        await transaction.CommitAsync();
-                        return (true, "提交成功");
-
+                        transaction.Commit();
+                        return (true, "成功");
                     }
                     else
                     {
-                        await transaction.RollbackAsync();
-                        return (false, "提交失败");
+                        transaction.Commit();
+                        return (false, "失败");
                     }
                 }
             }

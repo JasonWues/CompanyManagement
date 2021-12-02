@@ -32,7 +32,7 @@ public class MenuInfoBll : BaseBll<MenuInfo>, IMenuInfoBll
                 Title = x.Title
             }).ToList();
 
-            item.child = chlidMenusItem;
+            item.Child = chlidMenusItem;
 
             RecursionMenu(chlidMenusItem, menus);
         }
@@ -46,7 +46,7 @@ public class MenuInfoBll : BaseBll<MenuInfo>, IMenuInfoBll
         var isSuperAdmin = await (from x in _iRUserInfo_RoleInfoDal.QueryDb().Where(x => x.UserId == userInfo.Id)
                                   join s in _iRoleInfoDal.QueryDb().Where(x => x.RoleName == "系统管理员" && x.IsDelete == false)
                                   on x.RoleId equals s.Id
-                                  select x.Id).CountAsync() > 0 ? true : false;
+                                  select x.Id).AnyAsync();
 
         List<MainMenuInfo> menus = new List<MainMenuInfo>();
 
@@ -120,8 +120,8 @@ public class MenuInfoBll : BaseBll<MenuInfo>, IMenuInfoBll
                 Title = x.Title
             }).ToList();
 
-            parentMenu.child = childMenus;
-            RecursionMenu(parentMenu.child, menus);
+            parentMenu.Child = childMenus;
+            RecursionMenu(parentMenu.Child, menus);
 
         }
 

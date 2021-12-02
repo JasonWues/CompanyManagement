@@ -46,7 +46,7 @@ namespace CompanyBll
 
 
             var list = await (from wi in WorkFlowInstances
-                              join wm in _iWorkFlow_ModelDal.QueryDb().Where(x => x.isDelete == false)
+                              join wm in _iWorkFlow_ModelDal.QueryDb().Where(x => x.IsDelete == false)
                               on wi.ModelId equals wm.Id into grouping
                               from wiwm in grouping.DefaultIfEmpty()
 
