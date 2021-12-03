@@ -108,6 +108,10 @@ namespace CompanyBll
                 workFlowInstanceStep.ReviewTime = DateTime.Now;
             }
 
+            if(workFlowInstanceStep.ReviewerId != userInfo.Id)
+            {
+                return (false, "不是审批人");
+            }
 
             //获取流程实例
             var workFlowInstance = await _iWorkFlow_InstanceDal.Find(workFlowInstanceStep.InstanceId);
@@ -201,10 +205,6 @@ namespace CompanyBll
                                               on u.DepartmentId equals d.Id
                                               select d.LeaderId).FirstOrDefaultAsync();
 
-                        if (userInfo.Id != leaderId)
-                        {
-                            return (false, "不是领导");
-                        }
 
                         if (string.IsNullOrEmpty(leaderId) || workFlowInstanceStep.ReviewerId != leaderId)
                         {
@@ -272,30 +272,47 @@ namespace CompanyBll
 
                     workFlowInstance.Status = 2;
 
-                    workFlowInstanceStepUpdateIsSuccess = await _iBaseDal.QueryDb().BatchUpdateAsync(otherInstanceStep) > 0;
+                    using (var transaction = await _companyContext.Database.BeginTransactionAsync())
+                    {
+                        workFlowInstanceStepUpdateIsSuccess = await _iBaseDal.QueryDb().BatchUpdateAsync(otherInstanceStep) > 0;
 
-                    workFlowInstanceUpdateIsSuccess = await _iWorkFlow_InstanceDal.Update(workFlowInstance);
+                        workFlowInstanceUpdateIsSuccess = await _iWorkFlow_InstanceDal.Update(workFlowInstance);
+
+                        if (workFlowInstanceStepUpdateIsSuccess && workFlowInstanceUpdateIsSuccess)
+                        {
+                            transaction.Commit();
+                            return (true, "成功");
+                        }
+                        else
+                        {
+                            transaction.Commit();
+                            return (false, "失败");
+                        }
+
+                    }
                 }
                 else//领导驳回
                 {
-                    workFlowInstanceStepUpdateIsSuccess = await _iBaseDal.Update(workFlowInstanceStep);
-                    workFlowInstance.Status = 2;
-                    workFlowInstanceUpdateIsSuccess = await _iWorkFlow_InstanceDal.Update(workFlowInstance);
+                    using (var transaction = await _companyContext.Database.BeginTransactionAsync())
+
+                    {
+                        workFlowInstanceStepUpdateIsSuccess = await _iBaseDal.Update(workFlowInstanceStep);
+                        workFlowInstance.Status = 2;
+                        workFlowInstanceUpdateIsSuccess = await _iWorkFlow_InstanceDal.Update(workFlowInstance);
+                        if (workFlowInstanceStepUpdateIsSuccess && workFlowInstanceUpdateIsSuccess)
+                        {
+                            transaction.Commit();
+                            return (true, "成功");
+                        }
+                        else
+                        {
+                            transaction.Commit();
+                            return (false, "失败");
+                        }
+                    }
+
                 }
 
-                using (var transaction = await _companyContext.Database.BeginTransactionAsync())
-                {
-                    if (workFlowInstanceStepUpdateIsSuccess && workFlowInstanceUpdateIsSuccess)
-                    {
-                        transaction.Commit();
-                        return (true, "成功");
-                    }
-                    else
-                    {
-                        transaction.Commit();
-                        return (false, "失败");
-                    }
-                }
             }
             else
             {

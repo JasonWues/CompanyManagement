@@ -49,7 +49,7 @@ namespace CompanyManagement.Controllers
             {
                 return Json(ApiResulthelp.Error("部门名称重复"));
             }
-
+            
             DepartmentInfo entity = new()
             {
                 Id = Guid.NewGuid().ToString(),
