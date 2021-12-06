@@ -87,6 +87,11 @@ namespace CompanyManagement.Controllers
                 {
                     Key = "作废",
                     Value = 4
+                },
+                new
+                {
+                    Key = "已审批",
+                    Value = 5
                 }
             };
 
